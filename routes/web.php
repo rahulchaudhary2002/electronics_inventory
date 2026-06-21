@@ -1,0 +1,17 @@
+<?php
+
+use App\Http\Controllers\OutletController;
+use Illuminate\Support\Facades\Route;
+
+Route::redirect('/', '/login')->name('home');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::inertia('dashboard',   'dashboard')->name('dashboard');
+    Route::inertia('pos',         'pos')->name('pos');
+    Route::inertia('dispatch',    'dispatch')->name('dispatch');
+    Route::inertia('maintenance', 'maintenance')->name('maintenance');
+    Route::inertia('menu',        'menu')->name('menu');
+    Route::resource('outlets', OutletController::class)->only(['index', 'store', 'update', 'destroy']);
+});
+
+require __DIR__.'/settings.php';

@@ -1,0 +1,108 @@
+services:
+  electro-db:
+    image: mariadb:10.5.6
+    container_name: electro-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - '4406:3306'
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-electro}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_USER: ${DB_USERNAME:-root}
+    volumes:
+      - electro-db-data:/var/lib/mysql
+      - ./.dockerfile/mysql/my.cnf:/etc/mysql/my.cnf
+      - ./.dockerfile/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - electro-services
+
+  electro-phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: electro-phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - electro-db
+    environment:
+      PMA_HOST: electro-db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    ports:
+      - '4141:80'
+    networks:
+      - electro-services
+
+  electro-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        user: electro
+        uid: 1000
+        gid: 1000
+    image: electro-app
+    container_name: electro-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+      - ./.dockerfile/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./.dockerfile/php/zz-fpm.conf:/usr/local/etc/php-fpm.d/zz-fpm.conf
+    depends_on:
+      - electro-db
+    networks:
+      - electro-services
+
+  electro-queue:
+    image: electro-app
+    container_name: electro-queue
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work --queue=default --tries=3 --timeout=90 --sleep=3
+    volumes:
+      - .:/var/www
+      - ./.dockerfile/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    depends_on:
+      - electro-db
+      - electro-app
+    networks:
+      - electro-services
+
+  electro-scheduler:
+    image: electro-app
+    container_name: electro-scheduler
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan schedule:work
+    volumes:
+      - .:/var/www
+      - ./.dockerfile/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    depends_on:
+      - electro-db
+      - electro-app
+      - electro-queue
+    networks:
+      - electro-services
+
+  electro-webserver:
+    image: nginx:alpine
+    container_name: electro-webserver
+    restart: unless-stopped
+    ports:
+      - '4100:80'
+      - '4143:443'
+    volumes:
+      - ./:/var/www
+      - ./.dockerfile/nginx/conf.d:/etc/nginx/conf.d/
+    depends_on:
+      - electro-app
+    networks:
+      - electro-services
+
+networks:
+  electro-services:
+    driver: bridge
+
+volumes:
+  electro-db-data:
