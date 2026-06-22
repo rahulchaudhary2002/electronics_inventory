@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { edit as profileHref } from '@/routes/profile';
 import { edit as securityHref } from '@/routes/security';
-import { edit as appearanceHref } from '@/routes/appearance';
 import PosShell from '@/components/pos-shell';
 
 export default function SettingsShell({ children }: { children: ReactNode }) {
@@ -12,9 +11,8 @@ export default function SettingsShell({ children }: { children: ReactNode }) {
     const { t } = useTranslation();
 
     const tabs = [
-        { label: t('settings.profile'),    href: profileHref().url },
-        { label: t('settings.security'),   href: securityHref().url },
-        { label: t('settings.appearance'), href: appearanceHref().url },
+        { label: t('settings.profile'),  href: profileHref().url },
+        { label: t('settings.security'), href: securityHref().url },
     ];
 
     return (

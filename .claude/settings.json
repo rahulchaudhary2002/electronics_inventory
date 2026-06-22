@@ -3,7 +3,8 @@
     "allow": [
       "Bash(mysql -h 127.0.0.1 -u root -proot electro -e \"SHOW TABLES;\")",
       "Bash(mysql -u root -proot electro -e \"SHOW TABLES;\")",
-      "Bash(docker network *)"
+      "Bash(docker network *)",
+      "Bash(git log *)"
     ]
   }
 }
