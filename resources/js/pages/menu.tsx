@@ -79,7 +79,7 @@ export default function Menu() {
     const visibleCards = cards.filter(c => !c.superadminOnly || isSuperadmin);
 
     return (
-        <PosShell>
+        <PosShell activeNav="menu">
             <Head title={t('tabs.menu')} />
 
             <div className="p-4 space-y-4">

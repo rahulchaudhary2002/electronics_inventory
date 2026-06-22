@@ -195,7 +195,7 @@ export default function Stocks({ stocks, allStocks, products, brands, categories
     };
 
     return (
-        <PosShell>
+        <PosShell activeNav="store">
             <Head title={t('stockMgmt.title')} />
 
             <div className="space-y-4 p-4">

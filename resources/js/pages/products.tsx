@@ -185,7 +185,7 @@ export default function Products({ products, brands, categories, outlets, flash 
     };
 
     return (
-        <PosShell title={t('productMgmt.title')} backHref="/menu">
+        <PosShell title={t('productMgmt.title')} backHref="/menu" activeNav="menu">
             <Head title={t('productMgmt.title')} />
 
             <div className="space-y-4 p-4">

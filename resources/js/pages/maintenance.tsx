@@ -7,7 +7,7 @@ export default function Maintenance() {
     const { t } = useTranslation();
 
     return (
-        <PosShell>
+        <PosShell activeNav="maintenance">
             <Head title={t('tabs.maintenance')} />
 
             <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">

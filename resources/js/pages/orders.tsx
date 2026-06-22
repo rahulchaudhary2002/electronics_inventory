@@ -111,7 +111,7 @@ export default function Orders({ orders, flash }: Props) {
     };
 
     return (
-        <PosShell title={t('orderMgmt.title')} backHref="/menu">
+        <PosShell title={t('orderMgmt.title')} backHref="/menu" activeNav="menu">
             <Head title={t('orderMgmt.title')} />
 
             <div className="space-y-4 p-4">

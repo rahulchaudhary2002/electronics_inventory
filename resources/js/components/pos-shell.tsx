@@ -1,18 +1,21 @@
 import { Link } from '@inertiajs/react';
 import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Power } from 'lucide-react';
+import { ArrowLeft, Menu, Power, ShoppingCart, Warehouse, Wrench } from 'lucide-react';
 import LanguageSwitcher from '@/components/language-switcher';
 import { logout } from '@/routes';
 import { useAuth } from '@/hooks/use-auth';
+
+type ActiveNav = 'store' | 'pos' | 'maintenance' | 'menu';
 
 type Props = {
     children: ReactNode;
     title?: string;
     backHref?: string;
+    activeNav?: ActiveNav;
 };
 
-export default function PosShell({ children, title, backHref }: Props) {
+export default function PosShell({ children, title, backHref, activeNav = 'menu' }: Props) {
     const { t } = useTranslation();
     const { isSuperadmin } = useAuth();
 
@@ -63,6 +66,26 @@ export default function PosShell({ children, title, backHref }: Props) {
                 {children}
             </main>
 
+            {/* Fixed bottom nav */}
+            <nav className="shrink-0 z-40 flex h-16 items-stretch border-t border-slate-800 bg-slate-900 shadow-2xl">
+                {(
+                    [
+                        { href: '/stocks',      nav: 'store',       icon: <Warehouse className="h-[18px] w-[18px]" />,    label: t('tabs.store') },
+                        { href: '/pos',         nav: 'pos',         icon: <ShoppingCart className="h-[18px] w-[18px]" />, label: t('tabs.pos') },
+                        { href: '/maintenance', nav: 'maintenance', icon: <Wrench className="h-[18px] w-[18px]" />,       label: t('tabs.maintenance') },
+                        { href: '/menu',        nav: 'menu',        icon: <Menu className="h-[18px] w-[18px]" />,         label: t('tabs.menu') },
+                    ] as { href: string; nav: ActiveNav; icon: ReactNode; label: string }[]
+                ).map(({ href, nav, icon, label }) => (
+                    <Link
+                        key={nav}
+                        href={href}
+                        className={`flex flex-1 flex-col items-center justify-center border-t-2 transition-all ${activeNav === nav ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
+                    >
+                        {icon}
+                        <span className="mt-0.5 text-[9px] font-bold tracking-tight">{label}</span>
+                    </Link>
+                ))}
+            </nav>
         </div>
     );
 }

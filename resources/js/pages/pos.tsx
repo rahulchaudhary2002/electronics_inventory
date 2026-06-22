@@ -152,7 +152,7 @@ export default function Pos({ outlets, stocks, flash }: Props) {
     };
 
     return (
-        <PosShell>
+        <PosShell activeNav="pos">
             <Head title={t('tabs.pos')} />
 
             <div className="space-y-4 p-4">
