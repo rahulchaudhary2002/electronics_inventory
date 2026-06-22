@@ -72,7 +72,7 @@ export default function PosShell({ children, title, backHref, activeNav = 'menu'
                     [
                         { href: '/stocks',      nav: 'store',       icon: <Warehouse className="h-[18px] w-[18px]" />,    label: t('tabs.store') },
                         { href: '/pos',         nav: 'pos',         icon: <ShoppingCart className="h-[18px] w-[18px]" />, label: t('tabs.pos') },
-                        { href: '/maintenance', nav: 'maintenance', icon: <Wrench className="h-[18px] w-[18px]" />,       label: t('tabs.maintenance') },
+                        { href: '/maintenances', nav: 'maintenance', icon: <Wrench className="h-[18px] w-[18px]" />,       label: t('tabs.maintenance') },
                         { href: '/menu',        nav: 'menu',        icon: <Menu className="h-[18px] w-[18px]" />,         label: t('tabs.menu') },
                     ] as { href: string; nav: ActiveNav; icon: ReactNode; label: string }[]
                 ).map(({ href, nav, icon, label }) => (
