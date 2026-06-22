@@ -72,6 +72,7 @@ export default {
         totalDueTitle: 'कुल बाँकी उधारो (होल)',
     },
     tabs: {
+        home: 'होम',
         store: 'स्टोर (Stock)',
         pos: 'बिक्री (POS)',
         dispatch: 'डिस्प्याच',

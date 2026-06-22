@@ -72,6 +72,7 @@ export default {
         totalDueTitle: 'Total Outstanding Due (All)',
     },
     tabs: {
+        home: 'Home',
         store: 'Store (Stock)',
         pos: 'Sales (POS)',
         dispatch: 'Dispatch',

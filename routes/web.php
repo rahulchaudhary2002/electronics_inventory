@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -9,10 +10,11 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OutletController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/login')->name('home');
+Route::redirect('/', '/login');
 
 // All authenticated users
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('home', [HomeController::class, 'index'])->name('home');
     Route::get('pos', [\App\Http\Controllers\OrderController::class, 'pos'])->name('pos');
     Route::resource('maintenances', MaintenanceController::class)->only(['index', 'store', 'update']);
     Route::inertia('menu',        'menu')->name('menu');

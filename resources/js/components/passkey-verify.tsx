@@ -31,7 +31,7 @@ export default function PasskeyVerify({
             },
         }),
         onSuccess: (response) => {
-            router.visit(response.redirect ?? '/stocks');
+            router.visit(response.redirect ?? '/home');
         },
     });
 

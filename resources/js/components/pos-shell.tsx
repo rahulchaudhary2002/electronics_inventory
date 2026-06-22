@@ -1,12 +1,12 @@
 import { Link } from '@inertiajs/react';
 import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Menu, Power, ShoppingCart, Warehouse, Wrench } from 'lucide-react';
+import { ArrowLeft, Home, Menu, Power, ShoppingCart, Warehouse, Wrench } from 'lucide-react';
 import LanguageSwitcher from '@/components/language-switcher';
 import { logout } from '@/routes';
 import { useAuth } from '@/hooks/use-auth';
 
-type ActiveNav = 'store' | 'pos' | 'maintenance' | 'menu';
+type ActiveNav = 'home' | 'store' | 'pos' | 'maintenance' | 'menu';
 
 type Props = {
     children: ReactNode;
@@ -70,9 +70,10 @@ export default function PosShell({ children, title, backHref, activeNav = 'menu'
             <nav className="shrink-0 z-40 flex h-16 items-stretch border-t border-slate-800 bg-slate-900 shadow-2xl">
                 {(
                     [
+                        { href: '/home',         nav: 'home',        icon: <Home className="h-[18px] w-[18px]" />,         label: t('tabs.home') },
                         { href: '/stocks',      nav: 'store',       icon: <Warehouse className="h-[18px] w-[18px]" />,    label: t('tabs.store') },
                         { href: '/pos',         nav: 'pos',         icon: <ShoppingCart className="h-[18px] w-[18px]" />, label: t('tabs.pos') },
-                        { href: '/maintenances', nav: 'maintenance', icon: <Wrench className="h-[18px] w-[18px]" />,       label: t('tabs.maintenance') },
+                        { href: '/maintenances', nav: 'maintenance', icon: <Wrench className="h-[18px] w-[18px]" />,      label: t('tabs.maintenance') },
                         { href: '/menu',        nav: 'menu',        icon: <Menu className="h-[18px] w-[18px]" />,         label: t('tabs.menu') },
                     ] as { href: string; nav: ActiveNav; icon: ReactNode; label: string }[]
                 ).map(({ href, nav, icon, label }) => (
