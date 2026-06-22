@@ -12,6 +12,8 @@ export type User = {
 
 export type Auth = {
     user: User;
+    isSuperadmin: boolean;
+    outletId: number | null;
 };
 
 /* @chisel-passkeys */

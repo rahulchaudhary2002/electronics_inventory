@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/hooks/use-auth';
 import PosShell from '@/components/pos-shell';
 
 type MenuCard = {
@@ -10,10 +11,12 @@ type MenuCard = {
     color: string;
     bgColor: string;
     borderColor: string;
+    superadminOnly?: boolean;
 };
 
 export default function Menu() {
     const { t } = useTranslation();
+    const { isSuperadmin } = useAuth();
 
     const cards: MenuCard[] = [
         {
@@ -24,6 +27,7 @@ export default function Menu() {
             color: 'text-emerald-400',
             bgColor: 'bg-emerald-500/10',
             borderColor: 'border-emerald-500/20 hover:border-emerald-500/50',
+            superadminOnly: true,
         },
         {
             href: '/categories',
@@ -63,20 +67,20 @@ export default function Menu() {
         },
     ];
 
+    const visibleCards = cards.filter(c => !c.superadminOnly || isSuperadmin);
+
     return (
         <PosShell activeNav="menu">
             <Head title={t('tabs.menu')} />
 
             <div className="p-4 space-y-4">
-                {/* Page heading */}
                 <div className="pt-1 pb-2">
                     <h2 className="text-base font-black text-white">{t('tabs.menu')}</h2>
                     <p className="text-xs text-slate-500 mt-0.5">{t('menu.subtitle')}</p>
                 </div>
 
-                {/* Cards grid */}
                 <div className="grid grid-cols-2 gap-3">
-                    {cards.map((card) => (
+                    {visibleCards.map((card) => (
                         <Link
                             key={card.href}
                             href={card.href}
@@ -91,7 +95,6 @@ export default function Menu() {
                     ))}
                 </div>
 
-                {/* Version footer */}
                 <div className="pt-4 text-center">
                     <p className="text-[9px] font-bold uppercase tracking-widest text-slate-700">
                         {t('common.appName')} • {t('common.enterprisePos')}
