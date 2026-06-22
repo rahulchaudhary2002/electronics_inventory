@@ -44,6 +44,15 @@ export default function Menu() {
             borderColor: 'border-amber-500/20 hover:border-amber-500/50',
         },
         {
+            href: '/products',
+            icon: '📦',
+            label: t('menu.productManagement'),
+            description: t('menu.productManagementDesc'),
+            color: 'text-sky-400',
+            bgColor: 'bg-sky-500/10',
+            borderColor: 'border-sky-500/20 hover:border-sky-500/50',
+        },
+        {
             href: '/settings/profile',
             icon: '⚙️',
             label: t('settings.title'),
