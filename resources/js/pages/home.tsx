@@ -10,6 +10,7 @@ import {
     CategoryScale, LinearScale, BarElement,
 } from 'chart.js';
 import PosShell from '@/components/pos-shell';
+import { useAuth } from '@/hooks/use-auth';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -19,9 +20,13 @@ type DailySale  = { date: string; revenue: string; orders: number };
 type TopProduct = { product_id: number; revenue: string; qty: string; orders: number; product: { name: string; model_number: string | null; brand: { name: string } } };
 type StockItem  = { id: number; quantity: string; product: { name: string; model_number: string | null }; outlet: { name: string; code: string } };
 
+type Outlet = { id: number; name: string; code: string };
+
 type Props = {
     from: string;
     to: string;
+    outletId: number | null;
+    outlets: Outlet[];
     totalRevenue: number;
     totalOrders: number;
     ordersByStatus: Record<string, number>;
@@ -99,20 +104,33 @@ function Sparkline({ data }: { data: DailySale[] }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function Home({ from, to, totalRevenue, totalOrders, ordersByStatus, ordersByPayment, topProducts, dailySales, maintTotal, maintByStatus, lowStock, outOfStock }: Props) {
+export default function Home({ from, to, outletId, outlets, totalRevenue, totalOrders, ordersByStatus, ordersByPayment, topProducts, dailySales, maintTotal, maintByStatus, lowStock, outOfStock }: Props) {
     const { t } = useTranslation();
+    const { isSuperadmin } = useAuth();
     const [showPicker, setShowPicker] = useState(false);
     const [range, setRange] = useState<DateRange | undefined>({
         from: parseDate(from),
         to:   parseDate(to),
     });
 
+    const navigate = (params: Record<string, string | number | null>) => {
+        const base: Record<string, string | number> = { from, to };
+        if (outletId) base.outlet_id = outletId;
+        router.get('/home', { ...base, ...params }, { preserveState: false });
+    };
+
     const applyRange = (r: DateRange | undefined) => {
         if (!r?.from) return;
-        const f = formatDate(r.from);
+        const f  = formatDate(r.from);
         const t2 = r.to ? formatDate(r.to) : f;
-        router.get('/home', { from: f, to: t2 }, { preserveState: false });
+        navigate({ from: f, to: t2 });
         setShowPicker(false);
+    };
+
+    const applyOutlet = (id: number | null) => {
+        const params: Record<string, string | number> = { from, to };
+        if (id) params.outlet_id = id;
+        router.get('/home', params, { preserveState: false });
     };
 
     const totalMaintOpen = (maintByStatus['received'] ?? 0) + (maintByStatus['in_progress'] ?? 0);
@@ -136,6 +154,30 @@ export default function Home({ from, to, totalRevenue, totalOrders, ordersByStat
                     </div>
                     <span className="text-[9px] font-bold uppercase tracking-wide text-indigo-400">Change</span>
                 </button>
+
+                {/* Outlet filter — superadmin only */}
+                {isSuperadmin && outlets.length > 0 && (
+                    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-3">
+                        <p className="mb-2 text-[8px] font-bold uppercase tracking-widest text-slate-600">Filter by Outlet</p>
+                        <div className="flex flex-wrap gap-1.5">
+                            <button
+                                onClick={() => applyOutlet(null)}
+                                className={`rounded-xl px-3 py-1.5 text-[9px] font-bold transition-all ${!outletId ? 'bg-indigo-600 text-white' : 'border border-slate-700 text-slate-400 hover:text-white'}`}
+                            >
+                                All Outlets
+                            </button>
+                            {outlets.map(o => (
+                                <button
+                                    key={o.id}
+                                    onClick={() => applyOutlet(o.id)}
+                                    className={`rounded-xl px-3 py-1.5 text-[9px] font-bold transition-all ${outletId === o.id ? 'bg-indigo-600 text-white' : 'border border-slate-700 text-slate-400 hover:text-white'}`}
+                                >
+                                    {o.name} <span className="opacity-60">({o.code})</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Top KPIs */}
                 <div className="grid grid-cols-2 gap-3">

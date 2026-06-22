@@ -14,13 +14,14 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $user   = $request->user();
-        $from   = $request->input('from', now()->startOfMonth()->toDateString());
-        $to     = $request->input('to', now()->toDateString());
-        $fromDt = $from . ' 00:00:00';
-        $toDt   = $to   . ' 23:59:59';
+        $user      = $request->user();
+        $from      = $request->input('from', now()->startOfMonth()->toDateString());
+        $to        = $request->input('to', now()->toDateString());
+        $outletId  = $user->is_superadmin ? $request->integer('outlet_id') ?: null : $user->outlet_id;
+        $fromDt    = $from . ' 00:00:00';
+        $toDt      = $to   . ' 23:59:59';
 
-        $scoped = fn ($q) => $user->is_superadmin ? $q : $q->where('outlet_id', $user->outlet_id);
+        $scoped = fn ($q) => $outletId ? $q->where('outlet_id', $outletId) : $q;
 
         // Orders
         $orders          = $scoped(Order::whereBetween('created_at', [$fromDt, $toDt]))->get(['id', 'price', 'quantity', 'payment_type', 'status']);
@@ -53,13 +54,15 @@ class HomeController extends Controller
 
         // Stock snapshot
         $stockBase  = Stock::with('product:id,name,model_number', 'outlet:id,name,code')
-            ->when(!$user->is_superadmin, fn ($q) => $q->where('outlet_id', $user->outlet_id));
+            ->when($outletId, fn ($q) => $q->where('outlet_id', $outletId));
         $lowStock   = (clone $stockBase)->where('quantity', '>', 0)->where('quantity', '<=', 5)->get();
         $outOfStock = (clone $stockBase)->where('quantity', '<=', 0)->count();
 
         return Inertia::render('home', [
             'from'           => $from,
             'to'             => $to,
+            'outletId'       => $outletId,
+            'outlets'        => $user->is_superadmin ? Outlet::orderBy('name')->get(['id', 'name', 'code']) : [],
             'totalRevenue'   => $totalRevenue,
             'totalOrders'    => $totalOrders,
             'ordersByStatus' => $ordersByStatus,
