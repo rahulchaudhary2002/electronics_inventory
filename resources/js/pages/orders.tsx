@@ -88,6 +88,12 @@ export default function Orders({ orders, flash }: Props) {
         }),
     [orders, search, statusFilter]);
 
+    const stats = useMemo(() => ({
+        yetToDeliver: orders.filter(o => o.status === 'pending' || o.status === 'confirm').length,
+        onProcess:    orders.filter(o => o.status === 'dispatched').length,
+        delivered:    orders.filter(o => o.status === 'delivered').length,
+    }), [orders]);
+
     const fmt = (n: number) =>
         `रू ${n.toLocaleString('en-NP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -114,6 +120,31 @@ export default function Orders({ orders, flash }: Props) {
                         {flash.success}
                     </div>
                 )}
+
+                {/* Summary stats */}
+                <div className="grid grid-cols-3 gap-3">
+                    <button
+                        onClick={() => setStatusFilter(statusFilter === 'pending' ? 'all' : 'pending')}
+                        className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-3 text-center transition-all hover:border-amber-500/40"
+                    >
+                        <p className="text-lg font-black text-amber-400">{stats.yetToDeliver}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-wide text-amber-500/70">Yet to Deliver</p>
+                    </button>
+                    <button
+                        onClick={() => setStatusFilter(statusFilter === 'dispatched' ? 'all' : 'dispatched')}
+                        className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-3 text-center transition-all hover:border-indigo-500/40"
+                    >
+                        <p className="text-lg font-black text-indigo-400">{stats.onProcess}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-wide text-indigo-500/70">On Process</p>
+                    </button>
+                    <button
+                        onClick={() => setStatusFilter(statusFilter === 'delivered' ? 'all' : 'delivered')}
+                        className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-center transition-all hover:border-emerald-500/40"
+                    >
+                        <p className="text-lg font-black text-emerald-400">{stats.delivered}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-wide text-emerald-500/70">Delivered</p>
+                    </button>
+                </div>
 
                 <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
                     <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
