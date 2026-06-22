@@ -70,47 +70,49 @@ export default function Pos({ outlets, stocks, flash }: Props) {
     const { t } = useTranslation();
     const { isSuperadmin, outletId: userOutletId } = useAuth();
 
-    const [formOutletId, setFormOutletId] = useState<number | ''>(
-        isSuperadmin ? '' : (userOutletId ?? '')
-    );
+    const defaultOutletId = isSuperadmin ? '' : (userOutletId ?? '');
+    const [destOutletId, setDestOutletId] = useState<number | ''>(defaultOutletId);
     const [warrantyPreview, setWarrantyPreview] = useState<string | null>(null);
     const warrantyRef = useRef<HTMLInputElement>(null);
 
+    // Product list comes from destination outlet stock
     const outletStocks = useMemo(() => {
-        if (!formOutletId) return [];
-        return stocks.filter(s => s.outlet_id === formOutletId);
-    }, [stocks, formOutletId]);
+        if (!destOutletId) return [];
+        return stocks.filter(s => s.outlet_id === destOutletId);
+    }, [stocks, destOutletId]);
 
     const form = useForm<{
-        outlet_id:           number | '';
-        product_id:          number | '';
-        customer_name:       string;
-        customer_mobile:     string;
-        customer_address:    string;
-        price:               string;
-        quantity:            string;
-        payment_type:        string;
-        status:              string;
-        warranty_card:       File | null;
-        advance_amount:      string;
-        due_date:            string;
-        down_payment:        string;
-        installment_months:  number | '';
+        origin_outlet_id:      number | '';
+        destination_outlet_id: number | '';
+        product_id:            number | '';
+        customer_name:         string;
+        customer_mobile:       string;
+        customer_address:      string;
+        price:                 string;
+        quantity:              string;
+        payment_type:          string;
+        status:                string;
+        warranty_card:         File | null;
+        advance_amount:        string;
+        due_date:              string;
+        down_payment:          string;
+        installment_months:    number | '';
     }>({
-        outlet_id:          isSuperadmin ? '' : (userOutletId ?? ''),
-        product_id:         '',
-        customer_name:      '',
-        customer_mobile:    '',
-        customer_address:   '',
-        price:              '',
-        quantity:           '1',
-        payment_type:       'cash',
-        status:             'pending',
-        warranty_card:      null,
-        advance_amount:     '',
-        due_date:           '',
-        down_payment:       '',
-        installment_months: '',
+        origin_outlet_id:      defaultOutletId,
+        destination_outlet_id: defaultOutletId,
+        product_id:            '',
+        customer_name:         '',
+        customer_mobile:       '',
+        customer_address:      '',
+        price:                 '',
+        quantity:              '1',
+        payment_type:          'cash',
+        status:                'pending',
+        warranty_card:         null,
+        advance_amount:        '',
+        due_date:              '',
+        down_payment:          '',
+        installment_months:    '',
     });
 
     // Live EMI calculations
@@ -144,7 +146,7 @@ export default function Pos({ outlets, stocks, flash }: Props) {
             forceFormData: true,
             onSuccess: () => {
                 form.reset();
-                setFormOutletId(isSuperadmin ? '' : (userOutletId ?? ''));
+                setDestOutletId(defaultOutletId);
                 setWarrantyPreview(null);
                 if (warrantyRef.current) warrantyRef.current.value = '';
             },
@@ -163,25 +165,56 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Outlet (superadmin only) */}
-                    {isSuperadmin && (
-                        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                            <FormSelect
-                                label={t('orderMgmt.outlet') + ' *'}
-                                value={form.data.outlet_id}
-                                onChange={e => {
-                                    const id = Number(e.target.value);
-                                    form.setData('outlet_id', id);
-                                    form.setData('product_id', '');
-                                    setFormOutletId(id);
-                                }}
-                                required
-                            >
-                                <option value="">Select outlet...</option>
-                                {outlets.map(o => <option key={o.id} value={o.id}>{o.name} ({o.code})</option>)}
-                            </FormSelect>
+                    {/* Origin & Destination Outlets */}
+                    <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
+                        <SectionHeading icon="🏪" label="Outlets" />
+                        <div className="grid grid-cols-2 gap-3">
+                            {/* Origin — read-only for outlet users */}
+                            <div>
+                                <label className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-slate-500">Origin *</label>
+                                {isSuperadmin ? (
+                                    <select
+                                        className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                        value={form.data.origin_outlet_id}
+                                        onChange={e => form.setData('origin_outlet_id', Number(e.target.value))}
+                                        required
+                                    >
+                                        <option value="">Select...</option>
+                                        {outlets.map(o => <option key={o.id} value={o.id}>{o.name} ({o.code})</option>)}
+                                    </select>
+                                ) : (
+                                    <div className="w-full rounded-xl border border-slate-800 bg-slate-950/50 px-3 py-2 text-[11px] text-slate-400">
+                                        {outlets.find(o => o.id === userOutletId)?.name ?? '—'}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Destination — selectable, drives stock filter */}
+                            <div>
+                                <label className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-slate-500">Destination *</label>
+                                <select
+                                    className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                    value={form.data.destination_outlet_id}
+                                    onChange={e => {
+                                        const id = Number(e.target.value);
+                                        form.setData('destination_outlet_id', id);
+                                        form.setData('product_id', '');
+                                        setDestOutletId(id);
+                                    }}
+                                    required
+                                >
+                                    {!isSuperadmin && outlets.length === 0
+                                        ? <option value={userOutletId ?? ''}>{outlets.find(o => o.id === userOutletId)?.name ?? 'My Outlet'}</option>
+                                        : <>
+                                            <option value="">Select...</option>
+                                            {outlets.map(o => <option key={o.id} value={o.id}>{o.name} ({o.code})</option>)}
+                                        </>
+                                    }
+                                </select>
+                            </div>
                         </div>
-                    )}
+                        <p className="text-[8px] text-slate-600">Stock will be deducted from the destination outlet</p>
+                    </div>
 
                     {/* Customer */}
                     <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
@@ -218,11 +251,11 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                             label={t('orderMgmt.product') + ' *'}
                             value={form.data.product_id}
                             onChange={e => form.setData('product_id', Number(e.target.value))}
-                            disabled={!formOutletId}
+                            disabled={!destOutletId}
                             required
                         >
                             <option value="">
-                                {!formOutletId
+                                {!destOutletId
                                     ? 'Select outlet first...'
                                     : outletStocks.length === 0
                                         ? t('orderMgmt.noProductsInStock')

@@ -33,7 +33,8 @@ type Order = {
     warranty_card: string | null;
     warranty_card_url: string | null;
     created_at: string;
-    outlet: Outlet;
+    origin_outlet: Outlet;
+    destination_outlet: Outlet;
     product: Product;
     payment: Payment | null;
 };
@@ -41,7 +42,6 @@ type Order = {
 type Props = {
     orders: Order[];
     outlets: Outlet[];
-    stocks: never[];
     flash?: { success?: string };
 };
 
@@ -206,7 +206,9 @@ export default function Orders({ orders, flash }: Props) {
                                             {o.product.brand.name} {o.product.name}
                                             {o.product.model_number ? ` (${o.product.model_number})` : ''}
                                         </p>
-                                        <p className="text-[9px] text-slate-500">{o.outlet.code} • #{o.id} • Qty: {Number(o.quantity).toLocaleString()}</p>
+                                        <p className="text-[9px] text-slate-500">
+                                            {o.origin_outlet.code} → {o.destination_outlet.code} • #{o.id} • Qty: {Number(o.quantity).toLocaleString()}
+                                        </p>
                                     </div>
                                     <p className="text-[12px] font-black text-indigo-400">{fmt(Number(o.price))}</p>
                                 </div>
@@ -256,7 +258,7 @@ export default function Orders({ orders, flash }: Props) {
                         <div className="rounded-2xl border border-slate-800 bg-slate-950 p-3">
                             <p className="text-[11px] font-bold text-slate-200">{editingOrder.customer_name}</p>
                             <p className="text-[9px] text-slate-500">
-                                {editingOrder.product.brand.name} {editingOrder.product.name} • {editingOrder.outlet.code}
+                                {editingOrder.product.brand.name} {editingOrder.product.name} • {editingOrder.origin_outlet.code} → {editingOrder.destination_outlet.code}
                             </p>
                         </div>
 

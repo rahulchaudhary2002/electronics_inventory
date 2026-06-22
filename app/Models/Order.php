@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Order extends Model
 {
     protected $fillable = [
-        'outlet_id', 'product_id', 'customer_name', 'customer_mobile',
-        'customer_address', 'price', 'quantity', 'payment_type', 'status', 'warranty_card',
+        'origin_outlet_id', 'destination_outlet_id', 'product_id',
+        'customer_name', 'customer_mobile', 'customer_address',
+        'price', 'quantity', 'payment_type', 'status', 'warranty_card',
     ];
 
     protected $casts = [
@@ -24,9 +25,14 @@ class Order extends Model
         return $this->warranty_card ? asset('storage/' . $this->warranty_card) : null;
     }
 
-    public function outlet(): BelongsTo
+    public function originOutlet(): BelongsTo
     {
-        return $this->belongsTo(Outlet::class);
+        return $this->belongsTo(Outlet::class, 'origin_outlet_id');
+    }
+
+    public function destinationOutlet(): BelongsTo
+    {
+        return $this->belongsTo(Outlet::class, 'destination_outlet_id');
     }
 
     public function product(): BelongsTo

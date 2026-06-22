@@ -21,17 +21,20 @@ class HomeController extends Controller
         $fromDt    = $from . ' 00:00:00';
         $toDt      = $to   . ' 23:59:59';
 
-        $scoped = fn ($q) => $outletId ? $q->where('outlet_id', $outletId) : $q;
+        // Orders scoped by destination outlet (where stock was deducted)
+        $orderScoped = fn ($q) => $outletId ? $q->where('destination_outlet_id', $outletId) : $q;
+        // Maintenance/stock scoped by outlet_id
+        $scoped      = fn ($q) => $outletId ? $q->where('outlet_id', $outletId) : $q;
 
         // Orders
-        $orders          = $scoped(Order::whereBetween('created_at', [$fromDt, $toDt]))->get(['id', 'price', 'quantity', 'payment_type', 'status']);
+        $orders          = $orderScoped(Order::whereBetween('created_at', [$fromDt, $toDt]))->get(['id', 'price', 'quantity', 'payment_type', 'status']);
         $totalRevenue    = $orders->sum(fn ($o) => (float) $o->price);
         $totalOrders     = $orders->count();
         $ordersByStatus  = $orders->groupBy('status')->map->count();
         $ordersByPayment = $orders->groupBy('payment_type')->map->count();
 
         // Top 5 products by revenue
-        $topProducts = $scoped(Order::query())
+        $topProducts = $orderScoped(Order::query())
             ->whereBetween('created_at', [$fromDt, $toDt])
             ->select('product_id', DB::raw('SUM(price) as revenue'), DB::raw('SUM(quantity) as qty'), DB::raw('COUNT(*) as orders'))
             ->with('product:id,name,model_number,brand_id', 'product.brand:id,name')
@@ -41,7 +44,7 @@ class HomeController extends Controller
             ->get();
 
         // Daily sales sparkline
-        $dailySales = $scoped(Order::query())
+        $dailySales = $orderScoped(Order::query())
             ->whereBetween('created_at', [$fromDt, $toDt])
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(price) as revenue'), DB::raw('COUNT(*) as orders'))
             ->groupBy('date')
