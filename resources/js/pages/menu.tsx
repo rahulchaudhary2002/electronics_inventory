@@ -26,6 +26,15 @@ export default function Menu() {
             borderColor: 'border-emerald-500/20 hover:border-emerald-500/50',
         },
         {
+            href: '/categories',
+            icon: '🏷️',
+            label: t('menu.categoryManagement'),
+            description: t('menu.categoryManagementDesc'),
+            color: 'text-violet-400',
+            bgColor: 'bg-violet-500/10',
+            borderColor: 'border-violet-500/20 hover:border-violet-500/50',
+        },
+        {
             href: '/settings/profile',
             icon: '⚙️',
             label: t('settings.title'),
