@@ -35,6 +35,15 @@ export default function Menu() {
             borderColor: 'border-violet-500/20 hover:border-violet-500/50',
         },
         {
+            href: '/brands',
+            icon: '🏅',
+            label: t('menu.brandManagement'),
+            description: t('menu.brandManagementDesc'),
+            color: 'text-amber-400',
+            bgColor: 'bg-amber-500/10',
+            borderColor: 'border-amber-500/20 hover:border-amber-500/50',
+        },
+        {
             href: '/settings/profile',
             icon: '⚙️',
             label: t('settings.title'),
