@@ -6,7 +6,9 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Outlet;
 use App\Models\Product;
+use App\Models\Stock;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -38,25 +40,29 @@ class ProductController extends Controller
             'outlets.*.cost'        => 'required|numeric|min:0',
         ]);
 
-        $product = Product::create([
-            'name'         => $data['name'],
-            'model_number' => $data['model_number'] ?? null,
-            'type'         => $data['type'] ?? null,
-            'warranty'     => $data['warranty'] ?? null,
-            'brand_id'     => $data['brand_id'],
-            'category_id'  => $data['category_id'],
-        ]);
+        DB::transaction(function () use ($data) {
+            $product = Product::create([
+                'name'         => $data['name'],
+                'model_number' => $data['model_number'] ?? null,
+                'type'         => $data['type'] ?? null,
+                'warranty'     => $data['warranty'] ?? null,
+                'brand_id'     => $data['brand_id'],
+                'category_id'  => $data['category_id'],
+            ]);
 
-        if (!empty($data['outlets'])) {
-            $sync = [];
-            foreach ($data['outlets'] as $outlet) {
-                $sync[$outlet['id']] = [
+            foreach ($data['outlets'] ?? [] as $outlet) {
+                $product->outlets()->attach($outlet['id'], [
                     'initial_qty' => $outlet['initial_qty'],
                     'cost'        => $outlet['cost'],
-                ];
+                ]);
+
+                Stock::create([
+                    'outlet_id'  => $outlet['id'],
+                    'product_id' => $product->id,
+                    'quantity'   => $outlet['initial_qty'],
+                ]);
             }
-            $product->outlets()->sync($sync);
-        }
+        });
 
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }

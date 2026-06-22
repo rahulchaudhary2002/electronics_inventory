@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Menu, Power, ShoppingCart, Truck, Warehouse, Wrench } from 'lucide-react';
 import LanguageSwitcher from '@/components/language-switcher';
 import { logout } from '@/routes';
+import { useAuth } from '@/hooks/use-auth';
 
 type ActiveNav = 'store' | 'pos' | 'dispatch' | 'maintenance' | 'menu';
 
@@ -16,6 +17,7 @@ type Props = {
 
 export default function PosShell({ children, title, backHref, activeNav = 'menu' }: Props) {
     const { t } = useTranslation();
+    const { isSuperadmin } = useAuth();
 
     return (
         <div className="flex h-full flex-col overflow-hidden">
@@ -40,7 +42,7 @@ export default function PosShell({ children, title, backHref, activeNav = 'menu'
                         </h1>
                         {!backHref && (
                             <span className="mt-1 inline-block rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest text-indigo-300">
-                                {t('auth.superadmin')}
+                                {isSuperadmin ? t('auth.superadmin') : t('auth.outletAdmin')}
                             </span>
                         )}
                     </div>
@@ -68,7 +70,7 @@ export default function PosShell({ children, title, backHref, activeNav = 'menu'
             <nav className="shrink-0 z-40 flex h-16 items-stretch border-t border-slate-800 bg-slate-900 shadow-2xl">
                 {(
                     [
-                        { href: '/dashboard', nav: 'store',       icon: <Warehouse className="h-[18px] w-[18px]" />,    label: t('tabs.store') },
+                        { href: '/stocks',    nav: 'store',       icon: <Warehouse className="h-[18px] w-[18px]" />,    label: t('tabs.store') },
                         { href: '/pos',       nav: 'pos',         icon: <ShoppingCart className="h-[18px] w-[18px]" />, label: t('tabs.pos') },
                         { href: '/dispatch',  nav: 'dispatch',    icon: <Truck className="h-[18px] w-[18px]" />,        label: t('tabs.dispatch') },
                         { href: '/maintenance', nav: 'maintenance', icon: <Wrench className="h-[18px] w-[18px]" />,     label: t('tabs.maintenance') },
