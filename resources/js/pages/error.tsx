@@ -10,7 +10,7 @@ export default function Error() {
     const is403 = status === 403;
 
     return (
-        <PosShell activeNav="menu">
+        <PosShell>
             <div className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-rose-500/10 border border-rose-500/20">
                     <ShieldOff className="h-7 w-7 text-rose-400" />

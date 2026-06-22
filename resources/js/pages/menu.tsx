@@ -57,6 +57,15 @@ export default function Menu() {
             borderColor: 'border-sky-500/20 hover:border-sky-500/50',
         },
         {
+            href: '/orders',
+            icon: '🧾',
+            label: t('menu.orderManagement'),
+            description: t('menu.orderManagementDesc'),
+            color: 'text-teal-400',
+            bgColor: 'bg-teal-500/10',
+            borderColor: 'border-teal-500/20 hover:border-teal-500/50',
+        },
+        {
             href: '/settings/profile',
             icon: '⚙️',
             label: t('settings.title'),
@@ -70,7 +79,7 @@ export default function Menu() {
     const visibleCards = cards.filter(c => !c.superadminOnly || isSuperadmin);
 
     return (
-        <PosShell activeNav="menu">
+        <PosShell>
             <Head title={t('tabs.menu')} />
 
             <div className="p-4 space-y-4">

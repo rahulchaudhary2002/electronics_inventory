@@ -63,7 +63,7 @@ export default function Categories({ categories, flash }: Props) {
     };
 
     return (
-        <PosShell title={t('categoryMgmt.title')} backHref="/menu" activeNav="menu">
+        <PosShell title={t('categoryMgmt.title')} backHref="/menu">
             <Head title={t('categoryMgmt.title')} />
 
             <div className="space-y-4 p-4">

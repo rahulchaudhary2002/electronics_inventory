@@ -195,7 +195,7 @@ export default function Stocks({ stocks, allStocks, products, brands, categories
     };
 
     return (
-        <PosShell activeNav="store">
+        <PosShell>
             <Head title={t('stockMgmt.title')} />
 
             <div className="space-y-4 p-4">
@@ -305,7 +305,7 @@ export default function Stocks({ stocks, allStocks, products, brands, categories
                             <SectionHeading icon="⇄" label={t('stock.transferTitle')} />
                             <form onSubmit={handleTransfer} className="space-y-3">
 
-                                {/* From outlet — superadmin picks, outlet user sees their own (locked) */}
+                                {/* From outlet - superadmin picks, outlet user sees their own (locked) */}
                                 {isSuperadmin ? (
                                     <FormSelect
                                         label={t('stockMgmt.fromOutlet') + ' *'}
@@ -326,12 +326,12 @@ export default function Stocks({ stocks, allStocks, products, brands, categories
                                     <div>
                                         <label className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-slate-500">{t('stockMgmt.fromOutlet')}</label>
                                         <div className="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 text-[11px] text-slate-400">
-                                            {outlets.find(o => o.id === userOutletId)?.name ?? '—'}
+                                            {outlets.find(o => o.id === userOutletId)?.name ?? '-'}
                                         </div>
                                     </div>
                                 )}
 
-                                {/* Product — only those stocked at from-outlet */}
+                                {/* Product - only those stocked at from-outlet */}
                                 <FormSelect
                                     label={t('stock.transferItem') + ' *'}
                                     value={transferForm.data.product_id}
@@ -519,7 +519,7 @@ export default function Stocks({ stocks, allStocks, products, brands, categories
 
                             <FormInput label={t('productMgmt.warranty')} placeholder={t('productMgmt.warrantyPlaceholder')} value={productForm.data.warranty} onChange={e => productForm.setData('warranty', e.target.value)} />
 
-                            <p className="text-[9px] text-slate-600">Product will be saved without outlet assignment — add it to stock using the form above.</p>
+                            <p className="text-[9px] text-slate-600">Product will be saved without outlet assignment - add it to stock using the form above.</p>
 
                             <button
                                 type="submit"

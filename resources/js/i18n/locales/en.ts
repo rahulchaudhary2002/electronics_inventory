@@ -20,7 +20,7 @@ export default {
         filter: 'Filter',
         reset: 'Reset',
         approval: 'APPROVAL',
-        comingSoon: 'Coming soon — will be connected to API',
+        comingSoon: 'Coming soon - will be connected to API',
         enterprisePos: 'Enterprise POS',
     },
     auth: {
@@ -245,6 +245,8 @@ export default {
         productManagementDesc: 'Manage products, assign to outlets with stock and cost',
         stockManagement: 'Stock Management',
         stockManagementDesc: 'Track and manage current stock levels per outlet',
+        orderManagement: 'Order Management',
+        orderManagementDesc: 'Create and track customer orders, payments and delivery',
         settingsDesc: 'Profile, security, appearance and account preferences',
     },
     categoryMgmt: {
@@ -349,6 +351,55 @@ export default {
         fromOutlet: 'Source Outlet',
         toOutlet: 'Destination Outlet',
         noProductsToTransfer: 'No stock available in selected outlet.',
+    },
+    orderMgmt: {
+        title: 'Order Management',
+        newOrder: 'New Order',
+        orderList: 'Recent Orders',
+        noOrders: 'No orders yet.',
+        // form
+        customer: 'Customer',
+        customerName: 'Customer Name',
+        mobile: 'Mobile',
+        address: 'Address (Optional)',
+        product: 'Product',
+        outlet: 'Outlet',
+        price: 'Selling Price (NPR)',
+        paymentType: 'Payment Type',
+        statusLabel: 'Order Status',
+        warrantyCard: 'Warranty Card Photo',
+        // payment types
+        cash: 'Cash',
+        cheque: 'Cheque',
+        online: 'Online',
+        credit: 'Credit / Due',
+        installment: 'Installment (EMI)',
+        // status
+        pending: 'Pending',
+        confirm: 'Confirmed',
+        dispatched: 'Dispatched',
+        delivered: 'Delivered',
+        canceled: 'Canceled',
+        // credit fields
+        advanceAmount: 'Advance Paid (NPR)',
+        remainingAmount: 'Remaining Balance',
+        dueDate: 'Due Date',
+        // installment / EMI calculator
+        emiCalculator: 'EMI Calculator',
+        downPayment: 'Down Payment (NPR)',
+        loanAmount: 'Loan Amount',
+        months: 'Duration',
+        monthlyEmi: 'Monthly EMI',
+        totalPayable: 'Total Payable',
+        // buttons
+        createBtn: 'Create Order',
+        creating: 'Creating...',
+        updateStatus: 'Update Status',
+        updating: 'Updating...',
+        // upload
+        uploadPhoto: 'Upload Photo',
+        changePhoto: 'Change Photo',
+        noProductsInStock: 'No products in stock for this outlet.',
     },
     outlets: {
         title: 'Outlet Management',

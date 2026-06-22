@@ -63,7 +63,7 @@ export default function Brands({ brands, flash }: Props) {
     };
 
     return (
-        <PosShell title={t('brandMgmt.title')} backHref="/menu" activeNav="menu">
+        <PosShell title={t('brandMgmt.title')} backHref="/menu">
             <Head title={t('brandMgmt.title')} />
 
             <div className="space-y-4 p-4">

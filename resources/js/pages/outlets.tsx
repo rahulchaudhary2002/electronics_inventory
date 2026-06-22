@@ -89,7 +89,7 @@ export default function Outlets({ outlets, flash }: Props) {
     };
 
     return (
-        <PosShell title={t('outlets.title')} backHref="/menu" activeNav="menu">
+        <PosShell title={t('outlets.title')} backHref="/menu">
             <Head title={t('outlets.title')} />
 
             <div className="space-y-4 p-4">

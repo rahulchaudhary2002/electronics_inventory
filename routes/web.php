@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\CategoryController;
@@ -11,8 +12,7 @@ Route::redirect('/', '/login')->name('home');
 
 // All authenticated users
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('pos',         'pos')->name('pos');
-    Route::inertia('dispatch',    'dispatch')->name('dispatch');
+    Route::get('pos', [\App\Http\Controllers\OrderController::class, 'pos'])->name('pos');
     Route::inertia('maintenance', 'maintenance')->name('maintenance');
     Route::inertia('menu',        'menu')->name('menu');
     Route::resource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('products',   ProductController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::post('stocks/transfer', [StockController::class, 'transfer'])->name('stocks.transfer');
     Route::resource('stocks',     StockController::class)->only(['index', 'store', 'update']);
+    Route::resource('orders',     OrderController::class)->only(['index', 'store', 'update']);
 });
 
 // Superadmin only
