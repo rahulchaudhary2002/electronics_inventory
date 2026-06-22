@@ -1,9 +1,12 @@
 import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Package, Pencil, Trash2, Store } from 'lucide-react';
+import { Package, Pencil, Plus, Trash2, Store } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
+import { QuickCreateModal } from '@/components/quick-create-modal';
 import * as productsRoute from '@/routes/products';
+import * as brandsRoute from '@/routes/brands';
+import * as categoriesRoute from '@/routes/categories';
 
 type Brand    = { id: number; name: string };
 type Category = { id: number; name: string };
@@ -132,9 +135,14 @@ function OutletStockEditor({
     );
 }
 
-export default function Products({ products, brands, categories, outlets, flash }: Props) {
+export default function Products({ products, brands: initialBrands, categories: initialCategories, outlets, flash }: Props) {
     const { t } = useTranslation();
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+    // Local brand/category lists — extended when user quick-creates
+    const [brands, setBrands]         = useState(initialBrands);
+    const [categories, setCategories] = useState(initialCategories);
+    const [quickCreate, setQuickCreate] = useState<'brand' | 'category' | null>(null);
 
     const blankForm = (): FormData => ({
         name: '', model_number: '', type: '', warranty: '',
@@ -290,16 +298,28 @@ export default function Products({ products, brands, categories, outlets, flash 
 
                             <div className="grid grid-cols-2 gap-2">
                                 <FormField label={t('productMgmt.brand') + ' *'} error={createForm.errors.brand_id}>
-                                    <select className={selectCls} value={createForm.data.brand_id} onChange={e => createForm.setData('brand_id', Number(e.target.value))} required>
-                                        <option value="">{t('productMgmt.selectBrand')}</option>
-                                        {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-                                    </select>
+                                    <div className="flex gap-1">
+                                        <select className={`${selectCls} min-w-0 flex-1`} value={createForm.data.brand_id} onChange={e => createForm.setData('brand_id', Number(e.target.value))} required>
+                                            <option value="">{t('productMgmt.selectBrand')}</option>
+                                            {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                                        </select>
+                                        <button type="button" onClick={() => setQuickCreate('brand')}
+                                            className="shrink-0 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-2 text-indigo-400 hover:bg-indigo-500/20">
+                                            <Plus className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
                                 </FormField>
                                 <FormField label={t('productMgmt.category') + ' *'} error={createForm.errors.category_id}>
-                                    <select className={selectCls} value={createForm.data.category_id} onChange={e => createForm.setData('category_id', Number(e.target.value))} required>
-                                        <option value="">{t('productMgmt.selectCategory')}</option>
-                                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                    </select>
+                                    <div className="flex gap-1">
+                                        <select className={`${selectCls} min-w-0 flex-1`} value={createForm.data.category_id} onChange={e => createForm.setData('category_id', Number(e.target.value))} required>
+                                            <option value="">{t('productMgmt.selectCategory')}</option>
+                                            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                        </select>
+                                        <button type="button" onClick={() => setQuickCreate('category')}
+                                            className="shrink-0 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-2 text-indigo-400 hover:bg-indigo-500/20">
+                                            <Plus className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
                                 </FormField>
                             </div>
 
@@ -356,16 +376,28 @@ export default function Products({ products, brands, categories, outlets, flash 
 
                             <div className="grid grid-cols-2 gap-2">
                                 <FormField label={t('productMgmt.brand') + ' *'} error={editForm.errors.brand_id}>
-                                    <select className={selectCls} value={editForm.data.brand_id} onChange={e => editForm.setData('brand_id', Number(e.target.value))} required>
-                                        <option value="">{t('productMgmt.selectBrand')}</option>
-                                        {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-                                    </select>
+                                    <div className="flex gap-1">
+                                        <select className={`${selectCls} min-w-0 flex-1`} value={editForm.data.brand_id} onChange={e => editForm.setData('brand_id', Number(e.target.value))} required>
+                                            <option value="">{t('productMgmt.selectBrand')}</option>
+                                            {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                                        </select>
+                                        <button type="button" onClick={() => setQuickCreate('brand')}
+                                            className="shrink-0 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-2 text-indigo-400 hover:bg-indigo-500/20">
+                                            <Plus className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
                                 </FormField>
                                 <FormField label={t('productMgmt.category') + ' *'} error={editForm.errors.category_id}>
-                                    <select className={selectCls} value={editForm.data.category_id} onChange={e => editForm.setData('category_id', Number(e.target.value))} required>
-                                        <option value="">{t('productMgmt.selectCategory')}</option>
-                                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                    </select>
+                                    <div className="flex gap-1">
+                                        <select className={`${selectCls} min-w-0 flex-1`} value={editForm.data.category_id} onChange={e => editForm.setData('category_id', Number(e.target.value))} required>
+                                            <option value="">{t('productMgmt.selectCategory')}</option>
+                                            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                        </select>
+                                        <button type="button" onClick={() => setQuickCreate('category')}
+                                            className="shrink-0 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-2 text-indigo-400 hover:bg-indigo-500/20">
+                                            <Plus className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
                                 </FormField>
                             </div>
 
@@ -401,6 +433,39 @@ export default function Products({ products, brands, categories, outlets, flash 
                         </form>
                     </div>
                 </div>
+            )}
+
+            {quickCreate === 'brand' && (
+                <QuickCreateModal
+                    title="New Brand"
+                    placeholder="Brand name..."
+                    url={brandsRoute.store().url}
+                    onSuccess={item => {
+                        setBrands(prev => [...prev, item].sort((a, b) => a.name.localeCompare(b.name)));
+                        if (editingProduct) {
+                            editForm.setData('brand_id', item.id);
+                        } else {
+                            createForm.setData('brand_id', item.id);
+                        }
+                    }}
+                    onClose={() => setQuickCreate(null)}
+                />
+            )}
+            {quickCreate === 'category' && (
+                <QuickCreateModal
+                    title="New Category"
+                    placeholder="Category name..."
+                    url={categoriesRoute.store().url}
+                    onSuccess={item => {
+                        setCategories(prev => [...prev, item].sort((a, b) => a.name.localeCompare(b.name)));
+                        if (editingProduct) {
+                            editForm.setData('category_id', item.id);
+                        } else {
+                            createForm.setData('category_id', item.id);
+                        }
+                    }}
+                    onClose={() => setQuickCreate(null)}
+                />
             )}
         </PosShell>
     );

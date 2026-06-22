@@ -1,11 +1,14 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pencil, X } from 'lucide-react';
+import { Pencil, Plus, X } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
 import { useAuth } from '@/hooks/use-auth';
+import { QuickCreateModal } from '@/components/quick-create-modal';
 import * as stocksRoute from '@/routes/stocks';
 import * as productsRoute from '@/routes/products';
+import * as brandsRoute from '@/routes/brands';
+import * as categoriesRoute from '@/routes/categories';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -77,7 +80,7 @@ function SectionHeading({ icon, label, badge }: { icon: string; label: string; b
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function Stocks({ stocks, allStocks, products, brands, categories, outlets, flash }: Props) {
+export default function Stocks({ stocks, allStocks, products, brands: initialBrands, categories: initialCategories, outlets, flash }: Props) {
     const { t } = useTranslation();
     const { isSuperadmin, outletId: userOutletId } = useAuth();
 
@@ -87,6 +90,11 @@ export default function Stocks({ stocks, allStocks, products, brands, categories
     const [editingStock, setEditingStock]         = useState<StockEntry | null>(null);
     const [editQty, setEditQty]                   = useState('');
     const [stockAction, setStockAction]           = useState<StockAction>('directAdd');
+
+    // Local brand/category lists — extended when user quick-creates
+    const [brands, setBrands]         = useState(initialBrands);
+    const [categories, setCategories] = useState(initialCategories);
+    const [quickCreate, setQuickCreate] = useState<'brand' | 'category' | null>(null);
 
     // ── Direct-add form state ──────────────────────────────────────────────
     const [formOutletId, setFormOutletId] = useState<number | ''>(isSuperadmin ? '' : (userOutletId ?? ''));
@@ -507,14 +515,42 @@ export default function Stocks({ stocks, allStocks, products, brands, categories
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
-                                <FormSelect label={t('productMgmt.brand') + ' *'} value={productForm.data.brand_id} onChange={e => productForm.setData('brand_id', Number(e.target.value))} required>
-                                    <option value="">{t('productMgmt.selectBrand')}</option>
-                                    {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-                                </FormSelect>
-                                <FormSelect label={t('productMgmt.category') + ' *'} value={productForm.data.category_id} onChange={e => productForm.setData('category_id', Number(e.target.value))} required>
-                                    <option value="">{t('productMgmt.selectCategory')}</option>
-                                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                </FormSelect>
+                                <div>
+                                    <label className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-slate-500">{t('productMgmt.brand')} *</label>
+                                    <div className="flex gap-1">
+                                        <select
+                                            className="min-w-0 flex-1 rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                            value={productForm.data.brand_id}
+                                            onChange={e => productForm.setData('brand_id', Number(e.target.value))}
+                                            required
+                                        >
+                                            <option value="">{t('productMgmt.selectBrand')}</option>
+                                            {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                                        </select>
+                                        <button type="button" onClick={() => setQuickCreate('brand')}
+                                            className="shrink-0 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-2 text-indigo-400 hover:bg-indigo-500/20">
+                                            <Plus className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-slate-500">{t('productMgmt.category')} *</label>
+                                    <div className="flex gap-1">
+                                        <select
+                                            className="min-w-0 flex-1 rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                            value={productForm.data.category_id}
+                                            onChange={e => productForm.setData('category_id', Number(e.target.value))}
+                                            required
+                                        >
+                                            <option value="">{t('productMgmt.selectCategory')}</option>
+                                            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                        </select>
+                                        <button type="button" onClick={() => setQuickCreate('category')}
+                                            className="shrink-0 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-2 text-indigo-400 hover:bg-indigo-500/20">
+                                            <Plus className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                             <FormInput label={t('productMgmt.warranty')} placeholder={t('productMgmt.warrantyPlaceholder')} value={productForm.data.warranty} onChange={e => productForm.setData('warranty', e.target.value)} />
@@ -531,6 +567,30 @@ export default function Stocks({ stocks, allStocks, products, brands, categories
                         </form>
                     </div>
                 </div>
+            )}
+            {quickCreate === 'brand' && (
+                <QuickCreateModal
+                    title="New Brand"
+                    placeholder="Brand name..."
+                    url={brandsRoute.store().url}
+                    onSuccess={item => {
+                        setBrands(prev => [...prev, item].sort((a, b) => a.name.localeCompare(b.name)));
+                        productForm.setData('brand_id', item.id);
+                    }}
+                    onClose={() => setQuickCreate(null)}
+                />
+            )}
+            {quickCreate === 'category' && (
+                <QuickCreateModal
+                    title="New Category"
+                    placeholder="Category name..."
+                    url={categoriesRoute.store().url}
+                    onSuccess={item => {
+                        setCategories(prev => [...prev, item].sort((a, b) => a.name.localeCompare(b.name)));
+                        productForm.setData('category_id', item.id);
+                    }}
+                    onClose={() => setQuickCreate(null)}
+                />
             )}
         </PosShell>
     );
