@@ -1,8 +1,9 @@
 import { Form, Head } from '@inertiajs/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Check, Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { ArrowRight, Check, Eye, EyeOff, Lock, Mail, Sun, Moon } from 'lucide-react';
 import LanguageSwitcher from '@/components/language-switcher';
+import { useAppearance } from '@/hooks/use-appearance';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Spinner } from '@/components/ui/spinner';
@@ -17,9 +18,10 @@ type Props = {
 export default function Login({ status, canResetPassword }: Props) {
     const { t } = useTranslation();
     const [showPassword, setShowPassword] = useState(false);
+    const { resolvedAppearance, updateAppearance } = useAppearance();
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-8 text-slate-100 antialiased">
+        <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-8 antialiased">
             <Head title={t('auth.loginBtn')} />
 
             {/* Decorative blur orbs */}
@@ -27,8 +29,17 @@ export default function Login({ status, canResetPassword }: Props) {
             <div className="pointer-events-none absolute bottom-10 right-10 h-44 w-44 -z-0 rounded-full bg-violet-600/10 blur-3xl" />
 
             <div className="relative z-10 w-full max-w-sm">
-                {/* Language switcher */}
-                <div className="mb-4 flex justify-end">
+                {/* Top bar */}
+                <div className="mb-4 flex items-center justify-end gap-2">
+                    <button
+                        onClick={() => updateAppearance(resolvedAppearance === 'dark' ? 'light' : 'dark')}
+                        title={resolvedAppearance === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                        className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/60 text-slate-400 transition-all hover:text-white"
+                    >
+                        {resolvedAppearance === 'dark'
+                            ? <Sun className="h-3.5 w-3.5" />
+                            : <Moon className="h-3.5 w-3.5" />}
+                    </button>
                     <LanguageSwitcher />
                 </div>
 
