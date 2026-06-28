@@ -125,7 +125,7 @@ export default function PosShell({ children, title, backHref, activeNav = 'menu'
                                 <ArrowLeft className="h-4 w-4" />
                             </Link>
                         )}
-                        <h2 className="text-sm font-bold text-white">
+                        <h2 className={`text-sm font-bold text-white ${!title ? 'lg:hidden' : ''}`}>
                             {title ?? t('common.appName')}
                         </h2>
                     </div>
