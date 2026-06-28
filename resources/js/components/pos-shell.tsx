@@ -3,12 +3,13 @@ import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     ArrowLeft, Home, Menu, Power, ShoppingCart, Warehouse, Wrench,
-    Store, Tag, Award, Package, ClipboardList, Settings,
+    Store, Tag, Award, Package, ClipboardList, Settings, Sun, Moon,
 } from 'lucide-react';
 import LanguageSwitcher from '@/components/language-switcher';
 import { logout } from '@/routes';
 import { useAuth } from '@/hooks/use-auth';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { useAppearance } from '@/hooks/use-appearance';
 
 type ActiveNav = 'home' | 'store' | 'pos' | 'maintenance' | 'menu';
 
@@ -42,6 +43,7 @@ export default function PosShell({ children, title, backHref, activeNav = 'menu'
     const { isSuperadmin } = useAuth();
     const { isCurrentOrParentUrl } = useCurrentUrl();
 
+    const { resolvedAppearance, updateAppearance } = useAppearance();
     const navItems = NAV_ITEMS(t);
     const menuSubItems = MENU_SUB_ITEMS(t, isSuperadmin);
     const roleLabel = isSuperadmin ? t('auth.superadmin') : t('auth.outletAdmin');
@@ -128,6 +130,15 @@ export default function PosShell({ children, title, backHref, activeNav = 'menu'
                         </h2>
                     </div>
                     <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => updateAppearance(resolvedAppearance === 'dark' ? 'light' : 'dark')}
+                            title={resolvedAppearance === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-800/60 text-slate-400 transition-all hover:text-white"
+                        >
+                            {resolvedAppearance === 'dark'
+                                ? <Sun className="h-4 w-4" />
+                                : <Moon className="h-4 w-4" />}
+                        </button>
                         <LanguageSwitcher />
                         <Link
                             href={logout()}

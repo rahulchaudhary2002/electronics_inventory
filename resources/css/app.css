@@ -61,6 +61,62 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   LIGHT MODE
+   All pages use hardcoded dark slate classes (bg-slate-950, text-white, etc.).
+   We remap the palette here so those classes render as light equivalents when
+   the .dark class is NOT present on <html>.
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+    /* Slate: flip darkest ↔ lightest so bg-slate-950 → near-white, etc. */
+    --color-slate-950: oklch(98.4% 0.003 247.858);
+    --color-slate-900: oklch(96.8% 0.007 247.896);
+    --color-slate-800: oklch(92.9% 0.013 255.508);
+    --color-slate-700: oklch(86.9% 0.022 252.894);
+    --color-slate-600: oklch(70.4% 0.04 256.788);
+    --color-slate-500: oklch(55.4% 0.046 257.417);
+    --color-slate-400: oklch(44.6% 0.043 257.281);
+    --color-slate-300: oklch(37.2% 0.044 257.287);
+    --color-slate-200: oklch(27.9% 0.041 260.031);
+    --color-slate-100: oklch(20.8% 0.042 265.755);
+    /* text-white → near-black so headings are visible on light surfaces */
+    --color-white: oklch(12.9% 0.042 264.695);
+
+    /* Accent 300/400/500 shades: shift to 600/700 equivalents for readable
+       contrast against light backgrounds (originals are too pastel on white) */
+    --color-indigo-300: oklch(45.7% 0.24 277.023);
+    --color-indigo-400: oklch(51.1% 0.262 276.966);
+    --color-indigo-500: oklch(45.7% 0.24 277.023);
+    --color-amber-300:  oklch(55.5% 0.163 48.998);
+    --color-amber-400:  oklch(66.6% 0.179 58.318);
+    --color-amber-500:  oklch(55.5% 0.163 48.998);
+    --color-emerald-300: oklch(50.8% 0.118 165.612);
+    --color-emerald-400: oklch(59.6% 0.145 163.225);
+    --color-emerald-500: oklch(50.8% 0.118 165.612);
+    --color-rose-300:  oklch(51.4% 0.222 16.935);
+    --color-rose-400:  oklch(58.6% 0.253 17.585);
+    --color-rose-500:  oklch(51.4% 0.222 16.935);
+    --color-violet-300: oklch(49.1% 0.27 292.581);
+    --color-violet-400: oklch(54.1% 0.281 293.009);
+    --color-violet-500: oklch(49.1% 0.27 292.581);
+    --color-blue-300:  oklch(48.8% 0.243 264.376);
+    --color-blue-400:  oklch(54.6% 0.245 262.881);
+    --color-blue-500:  oklch(48.8% 0.243 264.376);
+    --color-orange-300: oklch(55.3% 0.195 38.402);
+    --color-orange-400: oklch(64.6% 0.222 41.116);
+    --color-orange-500: oklch(55.3% 0.195 38.402);
+}
+
+/* Restore actual white inside solid-colored accent backgrounds so
+   button/nav label text stays legible (e.g. bg-indigo-600 text-white) */
+:root [class*="bg-indigo-6"],
+:root [class*="bg-indigo-7"],
+:root [class*="bg-rose-6"],
+:root [class*="bg-emerald-6"],
+:root [class*="bg-amber-6"] {
+    --color-white: oklch(1 0 0);
+}
+
 :root {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -97,7 +153,44 @@
     --sidebar-ring: oklch(0.87 0 0);
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   DARK MODE: restore all overridden palettes to their original Tailwind values
+   ───────────────────────────────────────────────────────────────────────────── */
 .dark {
+    /* Slate — original dark values */
+    --color-slate-950: oklch(12.9% 0.042 264.695);
+    --color-slate-900: oklch(20.8% 0.042 265.755);
+    --color-slate-800: oklch(27.9% 0.041 260.031);
+    --color-slate-700: oklch(37.2% 0.044 257.287);
+    --color-slate-600: oklch(44.6% 0.043 257.281);
+    --color-slate-500: oklch(55.4% 0.046 257.417);
+    --color-slate-400: oklch(70.4% 0.04 256.788);
+    --color-slate-300: oklch(86.9% 0.022 252.894);
+    --color-slate-200: oklch(92.9% 0.013 255.508);
+    --color-slate-100: oklch(96.8% 0.007 247.896);
+    --color-white: oklch(100% 0 0);
+    /* Accent colors — original pastel shades for dark backgrounds */
+    --color-indigo-300: oklch(78.5% 0.115 274.713);
+    --color-indigo-400: oklch(67.3% 0.182 276.935);
+    --color-indigo-500: oklch(58.5% 0.233 277.117);
+    --color-amber-300:  oklch(87.9% 0.169 91.605);
+    --color-amber-400:  oklch(82.8% 0.189 84.429);
+    --color-amber-500:  oklch(76.9% 0.188 70.08);
+    --color-emerald-300: oklch(84.5% 0.143 164.978);
+    --color-emerald-400: oklch(76.5% 0.177 163.223);
+    --color-emerald-500: oklch(69.6% 0.17 162.48);
+    --color-rose-300:  oklch(81% 0.117 11.638);
+    --color-rose-400:  oklch(71.2% 0.194 13.428);
+    --color-rose-500:  oklch(64.5% 0.246 16.439);
+    --color-violet-300: oklch(81.1% 0.111 293.571);
+    --color-violet-400: oklch(70.2% 0.183 293.541);
+    --color-violet-500: oklch(60.6% 0.25 292.717);
+    --color-blue-300:  oklch(80.9% 0.105 251.813);
+    --color-blue-400:  oklch(70.7% 0.165 254.624);
+    --color-blue-500:  oklch(62.3% 0.214 259.815);
+    --color-orange-300: oklch(83.7% 0.128 66.29);
+    --color-orange-400: oklch(75% 0.183 55.934);
+    --color-orange-500: oklch(70.5% 0.213 47.604);
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.145 0 0);
