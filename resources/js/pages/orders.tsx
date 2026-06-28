@@ -1,8 +1,11 @@
 import { Head, router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Image, Package, Pencil, Search, X } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
+import Pagination from '@/components/pagination';
+import { usePagination } from '@/hooks/use-pagination';
 import { useAuth } from '@/hooks/use-auth';
 import * as ordersRoute from '@/routes/orders';
 
@@ -115,6 +118,7 @@ export default function Orders({ orders, outlets, flash }: Props) {
             return matchStatus && matchOutlet && matchSearch;
         }),
     [orders, search, statusFilter, outletFilter]);
+    const { paged, page, totalPages, total, goTo } = usePagination(filtered, 10);
 
     const stats = useMemo(() => ({
         yetToDeliver: orders.filter(o => o.status === 'pending' || o.status === 'confirm').length,
@@ -205,18 +209,18 @@ export default function Orders({ orders, outlets, flash }: Props) {
                 {/* Order list */}
                 <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-white">{t('orderMgmt.orderList')}</h3>
-                    <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{filtered.length}</span>
+                    <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{total}</span>
                 </div>
 
                 <div className="space-y-3">
-                    {filtered.length === 0 ? (
+                    {total === 0 ? (
                         <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-800 bg-slate-900 py-16 text-center">
                             <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-800">
                                 <Search className="h-5 w-5 text-slate-600" />
                             </div>
                             <p className="text-sm font-semibold text-slate-500">{t('orderMgmt.noOrders')}</p>
                         </div>
-                    ) : filtered.map(o => (
+                    ) : paged.map(o => (
                         <div key={o.id} className="rounded-3xl border border-slate-800 bg-slate-900 overflow-hidden">
                             {/* Card header */}
                             <div className="flex items-center justify-between gap-2 border-b border-slate-800 bg-slate-950/40 px-4 py-2.5">
@@ -329,6 +333,7 @@ export default function Orders({ orders, outlets, flash }: Props) {
                         </div>
                     ))}
                 </div>
+                <Pagination page={page} totalPages={totalPages} total={total} perPage={10} onPage={goTo} />
             </div>
 
             {/* Status edit modal */}

@@ -1,8 +1,10 @@
 import { Head, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Award, CheckCircle2, AlertCircle, Pencil, Trash2, X } from 'lucide-react';
+import { Award, CheckCircle2, AlertCircle, Pencil, Search, Trash2, X } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
+import Pagination from '@/components/pagination';
+import { usePagination } from '@/hooks/use-pagination';
 import * as brandsRoute from '@/routes/brands';
 
 type Brand = {
@@ -35,6 +37,14 @@ const inputCls = 'w-full rounded-2xl border border-slate-800 bg-slate-950 px-3.5
 export default function Brands({ brands, flash }: Props) {
     const { t } = useTranslation();
     const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
+    const [search, setSearch] = useState('');
+
+    const filtered = useMemo(() =>
+        !search.trim() ? brands : brands.filter(b =>
+            b.name.toLowerCase().includes(search.toLowerCase())
+        ),
+    [brands, search]);
+    const { paged, page, totalPages, total, goTo } = usePagination(filtered, 15);
 
     const createForm = useForm({ name: '' });
 
@@ -84,10 +94,24 @@ export default function Brands({ brands, flash }: Props) {
                         <h3 className="flex items-center gap-2 text-sm font-bold text-white">
                             <Award className="h-4 w-4 text-amber-400" /> {t('brandMgmt.allBrands')}
                         </h3>
-                        <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{brands.length}</span>
+                        <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{total}</span>
                     </div>
 
-                    {brands.length === 0 ? (
+                    {/* Search */}
+                    <div className="relative mb-4">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                            <Search className="h-4 w-4" />
+                        </span>
+                        <input
+                            type="text"
+                            placeholder={t('common.search')}
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            className="w-full rounded-2xl border border-slate-800 bg-slate-950 py-2.5 pl-10 pr-3.5 text-sm text-slate-200 placeholder:text-slate-600 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                    </div>
+
+                    {total === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16 text-center">
                             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800">
                                 <Award className="h-6 w-6 text-slate-600" />
@@ -97,7 +121,7 @@ export default function Brands({ brands, flash }: Props) {
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            {brands.map((brand) => (
+                            {paged.map((brand) => (
                                 <div key={brand.id} className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-950/60 p-4 transition-colors hover:border-slate-700">
                                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400">
                                         <Award className="h-5 w-5" />
@@ -131,6 +155,7 @@ export default function Brands({ brands, flash }: Props) {
                             ))}
                         </div>
                     )}
+                    <Pagination page={page} totalPages={totalPages} total={total} perPage={15} onPage={goTo} />
                 </div>
 
                 {/* Create form */}

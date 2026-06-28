@@ -1,8 +1,10 @@
 import { Head, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, MapPin, Pencil, Plus, Store, Trash2, User } from 'lucide-react';
+import { CheckCircle2, MapPin, Pencil, Plus, Search, Store, Trash2, User } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
+import Pagination from '@/components/pagination';
+import { usePagination } from '@/hooks/use-pagination';
 
 type OutletUser = {
     id: number;
@@ -39,6 +41,16 @@ const inputCls = 'w-full rounded-2xl border border-slate-800 bg-slate-950 px-3.5
 export default function Outlets({ outlets, flash }: Props) {
     const { t } = useTranslation();
     const [editingOutlet, setEditingOutlet] = useState<Outlet | null>(null);
+    const [search, setSearch] = useState('');
+
+    const filtered = useMemo(() =>
+        !search.trim() ? outlets : outlets.filter(o =>
+            o.name.toLowerCase().includes(search.toLowerCase()) ||
+            o.code.toLowerCase().includes(search.toLowerCase()) ||
+            o.address.toLowerCase().includes(search.toLowerCase())
+        ),
+    [outlets, search]);
+    const { paged, page, totalPages, total, goTo } = usePagination(filtered, 15);
 
     // ── Create form ──
     const createForm = useForm({
@@ -109,11 +121,19 @@ export default function Outlets({ outlets, flash }: Props) {
                             {t('outlets.activeOutlets')}
                         </h3>
                         <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">
-                            {outlets.length}
+                            {total}
                         </span>
                     </div>
 
-                    {outlets.length === 0 ? (
+                    {/* Search */}
+                    <div className="relative mb-4">
+                        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                        <input type="text" placeholder={t('common.search')} value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            className="w-full rounded-2xl border border-slate-800 bg-slate-950 py-2.5 pl-10 pr-3 text-xs text-slate-300 placeholder:text-slate-600 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20" />
+                    </div>
+
+                    {total === 0 ? (
                         <div className="py-16 flex flex-col items-center justify-center text-center">
                             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800 mb-3">
                                 <Store className="h-5 w-5 text-slate-500" />
@@ -121,8 +141,9 @@ export default function Outlets({ outlets, flash }: Props) {
                             <p className="text-sm font-medium text-slate-500">{t('outlets.noOutlets')}</p>
                         </div>
                     ) : (
+                        <>
                         <div className="space-y-3">
-                            {outlets.map((outlet) => (
+                            {paged.map((outlet) => (
                                 <div key={outlet.id} className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4 transition-colors hover:border-slate-700">
                                     <div className="flex items-start gap-4">
                                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
@@ -167,6 +188,8 @@ export default function Outlets({ outlets, flash }: Props) {
                                 </div>
                             ))}
                         </div>
+                        <Pagination page={page} totalPages={totalPages} total={total} perPage={15} onPage={goTo} />
+                        </>
                     )}
                 </div>
 

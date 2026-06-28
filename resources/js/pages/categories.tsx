@@ -1,7 +1,9 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Layers, CheckCircle2, AlertCircle, Pencil, Trash2, X } from 'lucide-react';
+import { Layers, CheckCircle2, AlertCircle, Pencil, Trash2, X, Search } from 'lucide-react';
+import { usePagination } from '@/hooks/use-pagination';
+import Pagination from '@/components/pagination';
 import PosShell from '@/components/pos-shell';
 import * as categoriesRoute from '@/routes/categories';
 
@@ -129,6 +131,14 @@ export default function Categories({ categories, flash }: Props) {
         }, { forceFormData: true, onSuccess: () => setEditingCategory(null) });
     };
 
+    const [search, setSearch] = useState('');
+    const filtered = useMemo(() =>
+        !search.trim() ? categories : categories.filter(c =>
+            c.name.toLowerCase().includes(search.toLowerCase())
+        ),
+    [categories, search]);
+    const { paged, page, totalPages, total, goTo } = usePagination(filtered, 15);
+
     const deleteForm = useForm({});
     const handleDelete = (id: number) => {
         if (!confirm(t('categoryMgmt.deleteConfirm'))) return;
@@ -153,10 +163,17 @@ export default function Categories({ categories, flash }: Props) {
                         <h3 className="flex items-center gap-2 text-sm font-bold text-white">
                             <Layers className="h-4 w-4 text-amber-400" /> {t('categoryMgmt.allCategories')}
                         </h3>
-                        <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{categories.length}</span>
+                        <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{total}</span>
                     </div>
 
-                    {categories.length === 0 ? (
+                    <div className="relative mb-4">
+                        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                        <input type="text" placeholder="Search categories..." value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            className="w-full rounded-2xl border border-slate-800 bg-slate-950 py-2.5 pl-10 pr-3 text-xs text-slate-300 placeholder:text-slate-600 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20" />
+                    </div>
+
+                    {total === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16 text-center">
                             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800">
                                 <Layers className="h-6 w-6 text-slate-600" />
@@ -165,8 +182,9 @@ export default function Categories({ categories, flash }: Props) {
                             <p className="mt-1 text-xs text-slate-600">{t('common.addOneBelow')}</p>
                         </div>
                     ) : (
+                        <>
                         <div className="space-y-2">
-                            {categories.map((category) => (
+                            {paged.map((category) => (
                                 <div key={category.id} className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-950/60 p-4 transition-colors hover:border-slate-700">
                                     <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/60">
                                         {category.image_url ? (
@@ -203,6 +221,8 @@ export default function Categories({ categories, flash }: Props) {
                                 </div>
                             ))}
                         </div>
+                        <Pagination page={page} totalPages={totalPages} total={total} perPage={15} onPage={goTo} />
+                        </>
                     )}
                 </div>
 

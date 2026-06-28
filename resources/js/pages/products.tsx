@@ -1,7 +1,9 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, Package, Pencil, Plus, Trash2, Store, X } from 'lucide-react';
+import { CheckCircle2, Package, Pencil, Plus, Search, Trash2, Store, X } from 'lucide-react';
+import { usePagination } from '@/hooks/use-pagination';
+import Pagination from '@/components/pagination';
 import PosShell from '@/components/pos-shell';
 import { QuickCreateModal } from '@/components/quick-create-modal';
 import * as productsRoute from '@/routes/products';
@@ -202,6 +204,19 @@ export default function Products({ products, brands: initialBrands, categories: 
     const [categories, setCategories] = useState(initialCategories);
     const [quickCreate, setQuickCreate] = useState<'brand' | 'category' | null>(null);
 
+    const [search, setSearch] = useState('');
+    const filtered = useMemo(() => {
+        const q = search.toLowerCase().trim();
+        if (!q) return products;
+        return products.filter(p =>
+            p.name.toLowerCase().includes(q) ||
+            (p.model_number ?? '').toLowerCase().includes(q) ||
+            p.brand.name.toLowerCase().includes(q) ||
+            p.category.name.toLowerCase().includes(q)
+        );
+    }, [products, search]);
+    const { paged, page, totalPages, total, goTo } = usePagination(filtered, 10);
+
     const blankForm = (): FormData => ({
         name: '', model_number: '', type: '', warranty: '',
         brand_id: '', category_id: '', is_active: true, outlets: [], image: null,
@@ -287,10 +302,17 @@ export default function Products({ products, brands: initialBrands, categories: 
                         <h3 className="flex items-center gap-2 text-sm font-bold text-white">
                             <Package className="h-4 w-4 text-sky-400" /> {t('productMgmt.allProducts')}
                         </h3>
-                        <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{products.length}</span>
+                        <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{total}</span>
                     </div>
 
-                    {products.length === 0 ? (
+                    <div className="relative mb-4">
+                        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                        <input type="text" placeholder="Search by name, model, brand, category..." value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            className="w-full rounded-2xl border border-slate-800 bg-slate-950 py-2.5 pl-10 pr-3 text-xs text-slate-300 placeholder:text-slate-600 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20" />
+                    </div>
+
+                    {total === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16 text-center">
                             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800">
                                 <Package className="h-6 w-6 text-slate-600" />
@@ -299,8 +321,9 @@ export default function Products({ products, brands: initialBrands, categories: 
                             <p className="mt-1 text-xs text-slate-600">{t('common.addOneBelow')}</p>
                         </div>
                     ) : (
+                        <>
                         <div className="space-y-2">
-                            {products.map(product => (
+                            {paged.map(product => (
                                 <div key={product.id} className="rounded-2xl border border-slate-800 bg-slate-950 p-3">
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -365,6 +388,8 @@ export default function Products({ products, brands: initialBrands, categories: 
                                 </div>
                             ))}
                         </div>
+                        <Pagination page={page} totalPages={totalPages} total={total} perPage={10} onPage={goTo} />
+                        </>
                     )}
                 </div>
 

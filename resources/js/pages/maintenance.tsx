@@ -3,6 +3,8 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Pencil, Search, Wrench, User, Package, X } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
+import Pagination from '@/components/pagination';
+import { usePagination } from '@/hooks/use-pagination';
 import { useAuth } from '@/hooks/use-auth';
 import * as maintenancesRoute from '@/routes/maintenances';
 
@@ -145,11 +147,12 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
             const matchSearch = !q ||
                 m.customer_name.toLowerCase().includes(q) ||
                 m.customer_mobile.includes(q) ||
-                m.product.name.toLowerCase().includes(q) ||
-                m.product.brand.name.toLowerCase().includes(q);
+                m.product_name.toLowerCase().includes(q) ||
+                (m.product_model ?? '').toLowerCase().includes(q);
             return matchStatus && matchSearch;
         }),
     [maintenances, search, statusFilter]);
+    const { paged, page, totalPages, total, goTo } = usePagination(filtered, 15);
 
     const stats = useMemo(() => ({
         open:     maintenances.filter(m => m.status === 'received' || m.status === 'in_progress').length,
@@ -338,7 +341,7 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                         <div className="space-y-5 rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
                             <div className="flex items-center justify-between border-b border-slate-800/60 pb-4">
                                 <h3 className="text-sm font-bold text-white">All Cases</h3>
-                                <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{filtered.length}</span>
+                                <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{total}</span>
                             </div>
 
                             {/* Search */}
@@ -370,14 +373,14 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
 
                             {/* Rows */}
                             <div className="space-y-2">
-                                {filtered.length === 0 ? (
+                                {total === 0 ? (
                                     <div className="flex flex-col items-center justify-center py-12 text-center">
                                         <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-800">
                                             <Wrench className="h-5 w-5 text-slate-600" />
                                         </div>
                                         <p className="text-sm font-semibold text-slate-500">{t('maintenance.noCasesFound')}</p>
                                     </div>
-                                ) : filtered.map(m => (
+                                ) : paged.map(m => (
                                     <div key={m.id} className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950/60 p-4 transition-colors hover:border-slate-700">
                                         <div className="flex items-start justify-between gap-2">
                                             <div className="min-w-0 flex-1">
@@ -419,6 +422,7 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                                     </div>
                                 ))}
                             </div>
+                            <Pagination page={page} totalPages={totalPages} total={total} perPage={15} onPage={goTo} />
                         </div>
                     </div>
                 )}

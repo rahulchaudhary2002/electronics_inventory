@@ -1,8 +1,11 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Package, Pencil, Plus, Search, X } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
+import Pagination from '@/components/pagination';
+import { usePagination } from '@/hooks/use-pagination';
 import { useAuth } from '@/hooks/use-auth';
 import { QuickCreateModal } from '@/components/quick-create-modal';
 import * as stocksRoute from '@/routes/stocks';
@@ -129,6 +132,7 @@ export default function Stocks({ stocks, allStocks, products, brands: initialBra
             return matchOutlet && matchSearch;
         }),
     [stocks, search, outletFilter]);
+    const { paged, page, totalPages, total, goTo } = usePagination(filtered, 15);
 
     // ── Add form ──────────────────────────────────────────────────────────
     const addForm = useForm<{
@@ -434,14 +438,14 @@ export default function Stocks({ stocks, allStocks, products, brands: initialBra
 
                     {/* Rows */}
                     <div className="space-y-2">
-                        {filtered.length === 0 ? (
+                        {total === 0 ? (
                             <div className="flex flex-col items-center justify-center py-12 text-center">
                                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-800">
                                     <Package className="h-5 w-5 text-slate-600" />
                                 </div>
                                 <p className="text-sm font-semibold text-slate-500">{t('stockMgmt.noStock')}</p>
                             </div>
-                        ) : filtered.map(s => (
+                        ) : paged.map(s => (
                             <div key={s.id} className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/60 p-4 transition-colors hover:border-slate-700">
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-semibold text-white">
@@ -468,6 +472,7 @@ export default function Stocks({ stocks, allStocks, products, brands: initialBra
                             </div>
                         ))}
                     </div>
+                    <Pagination page={page} totalPages={totalPages} total={total} perPage={15} onPage={goTo} />
                 </div>
             </div>
 
