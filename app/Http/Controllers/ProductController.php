@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -32,6 +33,7 @@ class ProductController extends Controller
             'model_number' => 'nullable|string|max:100',
             'type'         => 'nullable|string|max:100',
             'warranty'     => 'nullable|string|max:100',
+            'image'        => 'nullable|image|max:2048',
             'brand_id'     => 'required|exists:brands,id',
             'category_id'  => 'required|exists:categories,id',
             'outlets'      => 'array',
@@ -40,12 +42,15 @@ class ProductController extends Controller
             'outlets.*.cost'        => 'required|numeric|min:0',
         ]);
 
-        DB::transaction(function () use ($data) {
+        $imagePath = $request->hasFile('image') ? $request->file('image')->store('product-images', 'public') : null;
+
+        DB::transaction(function () use ($data, $imagePath) {
             $product = Product::create([
                 'name'         => $data['name'],
                 'model_number' => $data['model_number'] ?? null,
                 'type'         => $data['type'] ?? null,
                 'warranty'     => $data['warranty'] ?? null,
+                'image'        => $imagePath,
                 'brand_id'     => $data['brand_id'],
                 'category_id'  => $data['category_id'],
             ]);
@@ -74,6 +79,7 @@ class ProductController extends Controller
             'model_number' => 'nullable|string|max:100',
             'type'         => 'nullable|string|max:100',
             'warranty'     => 'nullable|string|max:100',
+            'image'        => 'nullable|image|max:2048',
             'brand_id'     => 'required|exists:brands,id',
             'category_id'  => 'required|exists:categories,id',
             'is_active'    => 'required|boolean',
@@ -83,11 +89,21 @@ class ProductController extends Controller
             'outlets.*.cost'        => 'required|numeric|min:0',
         ]);
 
+        $imagePath = $product->image;
+
+        if ($request->hasFile('image')) {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $imagePath = $request->file('image')->store('product-images', 'public');
+        }
+
         $product->update([
             'name'         => $data['name'],
             'model_number' => $data['model_number'] ?? null,
             'type'         => $data['type'] ?? null,
             'warranty'     => $data['warranty'] ?? null,
+            'image'        => $imagePath,
             'brand_id'     => $data['brand_id'],
             'category_id'  => $data['category_id'],
             'is_active'    => $data['is_active'],
@@ -107,6 +123,10 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
         $product->delete();
 
         return redirect()->route('products.index')->with('success', 'Product deleted.');

@@ -18,7 +18,7 @@ class OrderController extends Controller
         $user = $request->user();
 
         $stocksQuery = Stock::with([
-            'product:id,name,model_number,brand_id',
+            'product:id,name,model_number,brand_id,image',
             'product.brand:id,name',
         ])->where('quantity', '>', 0);
 

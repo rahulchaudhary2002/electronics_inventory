@@ -9,7 +9,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
-    protected $fillable = ['name', 'model_number', 'type', 'warranty', 'brand_id', 'category_id', 'is_active'];
+    protected $fillable = ['name', 'model_number', 'type', 'warranty', 'image', 'brand_id', 'category_id', 'is_active'];
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
 
     public function brand(): BelongsTo
     {

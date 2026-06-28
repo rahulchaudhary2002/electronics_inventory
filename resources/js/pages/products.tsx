@@ -1,5 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Package, Pencil, Plus, Trash2, Store, X } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
@@ -23,6 +23,7 @@ type Product = {
     type: string | null;
     warranty: string | null;
     is_active: boolean;
+    image_url: string | null;
     brand: Brand;
     category: Category;
     outlets: OutletPivot[];
@@ -39,6 +40,7 @@ type FormData = {
     category_id: number | '';
     is_active: boolean;
     outlets: OutletEntry[];
+    image: File | null;
 };
 
 type Props = {
@@ -61,6 +63,62 @@ function FormField({ label, error, children }: { label: string; error?: string; 
 
 const inputCls   = 'w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2.5 text-xs text-slate-200 placeholder-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500';
 const selectCls  = 'w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2.5 text-xs text-slate-200 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500';
+
+function ImageUpload({
+    inputId,
+    current,
+    preview,
+    onChange,
+}: {
+    inputId: string;
+    current: string | null;
+    preview: string | null;
+    onChange: (file: File | null) => void;
+}) {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleRemove = () => {
+        onChange(null);
+        if (inputRef.current) inputRef.current.value = '';
+    };
+
+    return (
+        <div className="flex items-center gap-3">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
+                {preview ? (
+                    <img src={preview} alt="" className="h-full w-full object-cover" />
+                ) : current ? (
+                    <img src={current} alt="" className="h-full w-full object-cover" />
+                ) : (
+                    <Package className="h-6 w-6 text-slate-600" />
+                )}
+            </div>
+            <div className="flex-1">
+                <input
+                    ref={inputRef}
+                    type="file"
+                    accept="image/*"
+                    id={inputId}
+                    className="hidden"
+                    onChange={e => onChange(e.target.files?.[0] ?? null)}
+                />
+                <label
+                    htmlFor={inputId}
+                    className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:border-indigo-500/50 hover:text-indigo-400 transition-colors"
+                >
+                    {preview || current ? 'Change Image' : 'Upload Image'}
+                </label>
+                {(preview || current) && (
+                    <button type="button" onClick={handleRemove}
+                        className="ml-2 text-xs text-rose-400 hover:text-rose-300">
+                        Remove
+                    </button>
+                )}
+                <p className="mt-1 text-[10px] text-slate-600">JPG, PNG, WebP · max 2 MB</p>
+            </div>
+        </div>
+    );
+}
 
 function OutletStockEditor({
     outlets,
@@ -146,19 +204,26 @@ export default function Products({ products, brands: initialBrands, categories: 
 
     const blankForm = (): FormData => ({
         name: '', model_number: '', type: '', warranty: '',
-        brand_id: '', category_id: '', is_active: true, outlets: [],
+        brand_id: '', category_id: '', is_active: true, outlets: [], image: null,
     });
 
     const createForm = useForm<FormData>(blankForm());
+    const [createPreview, setCreatePreview] = useState<string | null>(null);
 
     const handleCreate = (e: React.FormEvent) => {
         e.preventDefault();
         createForm.post(productsRoute.store().url, {
-            onSuccess: () => createForm.setData(blankForm()),
+            forceFormData: true,
+            onSuccess: () => {
+                createForm.setData(blankForm());
+                setCreatePreview(null);
+            },
         });
     };
 
     const editForm = useForm<FormData>(blankForm());
+    const [editPreview, setEditPreview] = useState<string | null>(null);
+    const [editImageFile, setEditImageFile] = useState<File | null>(null);
 
     const openEdit = (product: Product) => {
         setEditingProduct(product);
@@ -175,15 +240,27 @@ export default function Products({ products, brands: initialBrands, categories: 
                 initial_qty: o.pivot.initial_qty,
                 cost:        o.pivot.cost,
             })),
+            image: null,
         });
+        setEditPreview(null);
+        setEditImageFile(null);
     };
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingProduct) return;
-        editForm.put(productsRoute.update(editingProduct.id).url, {
-            onSuccess: () => setEditingProduct(null),
-        });
+        router.post(productsRoute.update(editingProduct.id).url, {
+            _method: 'PUT',
+            name:         editForm.data.name,
+            model_number: editForm.data.model_number,
+            type:         editForm.data.type,
+            warranty:     editForm.data.warranty,
+            brand_id:     editForm.data.brand_id,
+            category_id:  editForm.data.category_id,
+            is_active:    editForm.data.is_active,
+            outlets:      editForm.data.outlets,
+            ...(editImageFile ? { image: editImageFile } : {}),
+        }, { forceFormData: true, onSuccess: () => setEditingProduct(null) });
     };
 
     const deleteForm = useForm({});
@@ -226,39 +303,48 @@ export default function Products({ products, brands: initialBrands, categories: 
                             {products.map(product => (
                                 <div key={product.id} className="rounded-2xl border border-slate-800 bg-slate-950 p-3">
                                     <div className="flex items-start justify-between gap-2">
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex flex-wrap items-center gap-1.5">
-                                                <span className="text-sm font-semibold text-white">{product.name}</span>
-                                                {product.model_number && (
-                                                    <span className="rounded-full border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-400">{product.model_number}</span>
-                                                )}
-                                                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold border ${
-                                                    product.is_active
-                                                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
-                                                        : 'border-slate-700 bg-slate-800 text-slate-500'
-                                                }`}>
-                                                    {product.is_active ? t('productMgmt.active') : t('productMgmt.inactive')}
-                                                </span>
-                                            </div>
-                                            <div className="mt-1 flex flex-wrap gap-1">
-                                                <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-1.5 py-0.5 text-[10px] text-violet-400">{product.category.name}</span>
-                                                <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-400">{product.brand.name}</span>
-                                                {product.type && (
-                                                    <span className="rounded-full border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400">{product.type}</span>
-                                                )}
-                                                {product.warranty && (
-                                                    <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-1.5 py-0.5 text-[10px] text-sky-400">{product.warranty}</span>
+                                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
+                                                {product.image_url ? (
+                                                    <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
+                                                ) : (
+                                                    <Package className="h-5 w-5 text-slate-600" />
                                                 )}
                                             </div>
-                                            {product.outlets.length > 0 && (
-                                                <div className="mt-1.5 flex flex-wrap gap-1">
-                                                    {product.outlets.map(o => (
-                                                        <span key={o.id} className="flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] text-slate-400">
-                                                            <Store className="h-2.5 w-2.5" /> {o.code} · {o.pivot.initial_qty} · NPR {Number(o.pivot.cost).toLocaleString()}
-                                                        </span>
-                                                    ))}
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                    <span className="text-sm font-semibold text-white">{product.name}</span>
+                                                    {product.model_number && (
+                                                        <span className="rounded-full border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-400">{product.model_number}</span>
+                                                    )}
+                                                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold border ${
+                                                        product.is_active
+                                                            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                                                            : 'border-slate-700 bg-slate-800 text-slate-500'
+                                                    }`}>
+                                                        {product.is_active ? t('productMgmt.active') : t('productMgmt.inactive')}
+                                                    </span>
                                                 </div>
-                                            )}
+                                                <div className="mt-1 flex flex-wrap gap-1">
+                                                    <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-1.5 py-0.5 text-[10px] text-violet-400">{product.category.name}</span>
+                                                    <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-400">{product.brand.name}</span>
+                                                    {product.type && (
+                                                        <span className="rounded-full border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400">{product.type}</span>
+                                                    )}
+                                                    {product.warranty && (
+                                                        <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-1.5 py-0.5 text-[10px] text-sky-400">{product.warranty}</span>
+                                                    )}
+                                                </div>
+                                                {product.outlets.length > 0 && (
+                                                    <div className="mt-1.5 flex flex-wrap gap-1">
+                                                        {product.outlets.map(o => (
+                                                            <span key={o.id} className="flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] text-slate-400">
+                                                                <Store className="h-2.5 w-2.5" /> {o.code} · {o.pivot.initial_qty} · NPR {Number(o.pivot.cost).toLocaleString()}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="flex shrink-0 gap-1.5">
                                             <button
@@ -296,6 +382,21 @@ export default function Products({ products, brands: initialBrands, categories: 
                             <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
                                 <Package className="h-3 w-3" /> Product Details
                             </p>
+
+                            <ImageUpload
+                                inputId="product-image-create"
+                                current={null}
+                                preview={createPreview}
+                                onChange={file => {
+                                    if (file) {
+                                        setCreatePreview(URL.createObjectURL(file));
+                                        createForm.setData('image', file);
+                                    } else {
+                                        setCreatePreview(null);
+                                        createForm.setData('image', null);
+                                    }
+                                }}
+                            />
 
                             <FormField label={t('productMgmt.productName') + ' *'} error={createForm.errors.name}>
                                 <input className={inputCls} placeholder={t('productMgmt.namePlaceholder')} value={createForm.data.name} onChange={e => createForm.setData('name', e.target.value)} required />
@@ -383,6 +484,21 @@ export default function Products({ products, brands: initialBrands, categories: 
 
                         <form onSubmit={handleUpdate}>
                         <div className="space-y-3 px-6 py-5">
+                            <ImageUpload
+                                inputId="product-image-edit"
+                                current={editingProduct.image_url}
+                                preview={editPreview}
+                                onChange={file => {
+                                    if (file) {
+                                        setEditPreview(URL.createObjectURL(file));
+                                        setEditImageFile(file);
+                                    } else {
+                                        setEditPreview(null);
+                                        setEditImageFile(null);
+                                    }
+                                }}
+                            />
+
                             <FormField label={t('productMgmt.name') + ' *'} error={editForm.errors.name}>
                                 <input className={inputCls} value={editForm.data.name} onChange={e => editForm.setData('name', e.target.value)} required />
                             </FormField>

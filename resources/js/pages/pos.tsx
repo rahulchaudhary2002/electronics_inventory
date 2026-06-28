@@ -18,7 +18,7 @@ initializeTheme();
 
 type Outlet   = { id: number; name: string; code: string };
 type Brand    = { id: number; name: string };
-type Product  = { id: number; name: string; model_number: string | null; brand: Brand };
+type Product  = { id: number; name: string; model_number: string | null; brand: Brand; image_url: string | null };
 type StockRow = { id: number; outlet_id: number; product_id: number; quantity: string; product: Product };
 
 type CartItem = {
@@ -331,8 +331,12 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                                                     : 'border-slate-800 bg-slate-900 hover:border-slate-600 hover:bg-slate-800/80 cursor-pointer'
                                             }`}
                                         >
-                                            <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-xl ${inCart ? 'bg-indigo-500/20' : 'bg-slate-800'}`}>
-                                                <Package className={`h-6 w-6 ${inCart ? 'text-indigo-400' : 'text-slate-500'}`} />
+                                            <div className={`mb-3 flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl ${inCart ? 'bg-indigo-500/20' : 'bg-slate-800'}`}>
+                                                {s.product.image_url ? (
+                                                    <img src={s.product.image_url} alt={s.product.name} className="h-full w-full object-cover rounded-xl" />
+                                                ) : (
+                                                    <Package className={`h-6 w-6 ${inCart ? 'text-indigo-400' : 'text-slate-500'}`} />
+                                                )}
                                             </div>
 
                                             <p className={`text-[10px] font-bold uppercase tracking-wide ${inCart ? 'text-indigo-400' : 'text-slate-500'}`}>
@@ -397,12 +401,16 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                             </div>
                         ) : (
                             <div className="divide-y divide-slate-800">
-                                {cart.map((c, idx) => (
+                                {cart.map((c) => (
                                     <div key={c.stockRow.product_id} className="p-4 space-y-3">
                                         {/* Item header */}
                                         <div className="flex items-start gap-2">
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-[10px] font-black text-indigo-400">
-                                                {idx + 1}
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-indigo-500/10">
+                                                {c.stockRow.product.image_url ? (
+                                                    <img src={c.stockRow.product.image_url} alt={c.stockRow.product.name} className="h-full w-full object-cover rounded-lg" />
+                                                ) : (
+                                                    <Package className="h-4 w-4 text-indigo-400" />
+                                                )}
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-[10px] font-bold uppercase text-indigo-400">{c.stockRow.product.brand.name}</p>

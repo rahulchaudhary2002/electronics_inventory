@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('model_number')->nullable();
             $table->string('type')->nullable();
             $table->string('warranty')->nullable();
+            $table->string('image')->nullable();
             $table->foreignId('brand_id')->constrained()->restrictOnDelete();
             $table->foreignId('category_id')->constrained()->restrictOnDelete();
             $table->boolean('is_active')->default(true);

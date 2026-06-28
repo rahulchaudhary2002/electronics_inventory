@@ -1,5 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layers, CheckCircle2, AlertCircle, Pencil, Trash2, X } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
@@ -9,6 +9,7 @@ type Category = {
     id: number;
     name: string;
     is_active: boolean;
+    image_url: string | null;
 };
 
 type Props = {
@@ -32,32 +33,100 @@ function FormField({ label, error, children }: { label: string; error?: string; 
 
 const inputCls = 'w-full rounded-2xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20';
 
+function ImageUpload({
+    inputId,
+    current,
+    preview,
+    onChange,
+}: {
+    inputId: string;
+    current: string | null;
+    preview: string | null;
+    onChange: (file: File | null) => void;
+}) {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleRemove = () => {
+        onChange(null);
+        if (inputRef.current) inputRef.current.value = '';
+    };
+
+    return (
+        <div className="flex items-center gap-3">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
+                {preview ? (
+                    <img src={preview} alt="" className="h-full w-full object-cover" />
+                ) : current ? (
+                    <img src={current} alt="" className="h-full w-full object-cover" />
+                ) : (
+                    <Layers className="h-6 w-6 text-slate-600" />
+                )}
+            </div>
+            <div className="flex-1">
+                <input
+                    ref={inputRef}
+                    type="file"
+                    accept="image/*"
+                    id={inputId}
+                    className="hidden"
+                    onChange={e => onChange(e.target.files?.[0] ?? null)}
+                />
+                <label
+                    htmlFor={inputId}
+                    className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:border-indigo-500/50 hover:text-indigo-400 transition-colors"
+                >
+                    {preview || current ? 'Change Image' : 'Upload Image'}
+                </label>
+                {(preview || current) && (
+                    <button type="button" onClick={handleRemove}
+                        className="ml-2 text-xs text-rose-400 hover:text-rose-300">
+                        Remove
+                    </button>
+                )}
+                <p className="mt-1 text-[10px] text-slate-600">JPG, PNG, WebP · max 2 MB</p>
+            </div>
+        </div>
+    );
+}
+
 export default function Categories({ categories, flash }: Props) {
     const { t } = useTranslation();
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
-    const createForm = useForm({ name: '' });
+    const createForm = useForm({ name: '', image: null as File | null });
+    const [createPreview, setCreatePreview] = useState<string | null>(null);
 
     const handleCreate = (e: React.FormEvent) => {
         e.preventDefault();
         createForm.post(categoriesRoute.store().url, {
-            onSuccess: () => createForm.reset(),
+            forceFormData: true,
+            onSuccess: () => {
+                createForm.reset();
+                setCreatePreview(null);
+            },
         });
     };
 
-    const editForm = useForm({ name: '', is_active: true });
+    const editForm = useForm({ name: '', is_active: true, image: null as File | null });
+    const [editPreview, setEditPreview] = useState<string | null>(null);
+    const [editImageFile, setEditImageFile] = useState<File | null>(null);
 
     const openEdit = (category: Category) => {
         setEditingCategory(category);
-        editForm.setData({ name: category.name, is_active: category.is_active });
+        editForm.setData({ name: category.name, is_active: category.is_active, image: null });
+        setEditPreview(null);
+        setEditImageFile(null);
     };
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingCategory) return;
-        editForm.put(categoriesRoute.update(editingCategory.id).url, {
-            onSuccess: () => setEditingCategory(null),
-        });
+        router.post(categoriesRoute.update(editingCategory.id).url, {
+            _method: 'PUT',
+            name: editForm.data.name,
+            is_active: editForm.data.is_active,
+            ...(editImageFile ? { image: editImageFile } : {}),
+        }, { forceFormData: true, onSuccess: () => setEditingCategory(null) });
     };
 
     const deleteForm = useForm({});
@@ -99,8 +168,12 @@ export default function Categories({ categories, flash }: Props) {
                         <div className="space-y-2">
                             {categories.map((category) => (
                                 <div key={category.id} className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-950/60 p-4 transition-colors hover:border-slate-700">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400">
-                                        <Layers className="h-5 w-5" />
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/60">
+                                        {category.image_url ? (
+                                            <img src={category.image_url} alt={category.name} className="h-full w-full object-cover" />
+                                        ) : (
+                                            <Layers className="h-5 w-5 text-amber-400" />
+                                        )}
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <p className="truncate font-semibold text-white">{category.name}</p>
@@ -137,6 +210,20 @@ export default function Categories({ categories, flash }: Props) {
                 <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
                     <p className="mb-4 text-xs font-bold uppercase tracking-widest text-indigo-400">{t('categoryMgmt.addNew')}</p>
                     <form onSubmit={handleCreate} className="space-y-4">
+                        <ImageUpload
+                            inputId="category-image-create"
+                            current={null}
+                            preview={createPreview}
+                            onChange={file => {
+                                if (file) {
+                                    setCreatePreview(URL.createObjectURL(file));
+                                    createForm.setData('image', file);
+                                } else {
+                                    setCreatePreview(null);
+                                    createForm.setData('image', null);
+                                }
+                            }}
+                        />
                         <FormField label={t('categoryMgmt.categoryName') + ' *'} error={createForm.errors.name}>
                             <input
                                 className={inputCls}
@@ -178,6 +265,20 @@ export default function Categories({ categories, flash }: Props) {
 
                         <form onSubmit={handleUpdate}>
                             <div className="space-y-4 px-6 py-5">
+                                <ImageUpload
+                                    inputId="category-image-edit"
+                                    current={editingCategory.image_url}
+                                    preview={editPreview}
+                                    onChange={file => {
+                                        if (file) {
+                                            setEditPreview(URL.createObjectURL(file));
+                                            setEditImageFile(file);
+                                        } else {
+                                            setEditPreview(null);
+                                            setEditImageFile(null);
+                                        }
+                                    }}
+                                />
                                 <FormField label={t('categoryMgmt.name') + ' *'} error={editForm.errors.name}>
                                     <input
                                         className={inputCls}
