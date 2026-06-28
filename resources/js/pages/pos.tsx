@@ -173,11 +173,11 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Origin & Destination Outlets */}
                     <div className="space-y-4 rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-                        <SectionHeading icon={Store} label="Outlets" />
+                        <SectionHeading icon={Store} label={t('orderMgmt.posOutlets')} />
                         <div className="grid grid-cols-2 gap-3">
                             {/* Origin — read-only for outlet users */}
                             <div>
-                                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">Origin *</label>
+                                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('orderMgmt.posOrigin')}</label>
                                 {isSuperadmin ? (
                                     <select
                                         className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-200 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20"
@@ -197,7 +197,7 @@ export default function Pos({ outlets, stocks, flash }: Props) {
 
                             {/* Destination — selectable, drives stock filter */}
                             <div>
-                                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">Destination *</label>
+                                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('orderMgmt.posDestination')}</label>
                                 <select
                                     className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-200 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20"
                                     value={form.data.destination_outlet_id}
@@ -219,7 +219,7 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                                 </select>
                             </div>
                         </div>
-                        <p className="text-[10px] text-slate-600">Stock will be deducted from the destination outlet</p>
+                        <p className="text-[10px] text-slate-600">{t('orderMgmt.stockDeductNote')}</p>
                     </div>
 
                     {/* Customer */}
@@ -262,10 +262,10 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                         >
                             <option value="">
                                 {!destOutletId
-                                    ? 'Select outlet first...'
+                                    ? t('common.selectOutletFirst')
                                     : outletStocks.length === 0
                                         ? t('orderMgmt.noProductsInStock')
-                                        : 'Select product...'}
+                                        : t('orderMgmt.selectProduct')}
                             </option>
                             {outletStocks.map(s => (
                                 <option key={s.product_id} value={s.product_id}>
@@ -282,7 +282,7 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                                 required
                             />
                             <FormInput
-                                label="Quantity *"
+                                label={t('orderMgmt.quantity') + ' *'}
                                 type="number" min={0.01} step="0.01" placeholder="1"
                                 value={form.data.quantity}
                                 onChange={e => form.setData('quantity', e.target.value)}
@@ -316,7 +316,7 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                         {/* Credit fields */}
                         {form.data.payment_type === 'credit' && (
                             <div className="space-y-3 rounded-2xl border border-amber-500/15 bg-amber-500/5 p-3">
-                                <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">Credit / Due Details</p>
+                                <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">{t('orderMgmt.creditDueDetails')}</p>
                                 <FormInput
                                     label={t('orderMgmt.advanceAmount')}
                                     type="number" min={0} step="0.01" placeholder="0.00"

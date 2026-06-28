@@ -33,7 +33,7 @@ export default function Login({ status, canResetPassword }: Props) {
                 <div className="mb-4 flex items-center justify-end gap-2">
                     <button
                         onClick={() => updateAppearance(resolvedAppearance === 'dark' ? 'light' : 'dark')}
-                        title={resolvedAppearance === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                        title={resolvedAppearance === 'dark' ? t('common.switchToLight') : t('common.switchToDark')}
                         className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/60 text-slate-400 transition-all hover:text-white"
                     >
                         {resolvedAppearance === 'dark'

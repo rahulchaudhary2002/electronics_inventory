@@ -129,21 +129,21 @@ export default function Orders({ orders, flash }: Props) {
                         className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-3 text-center transition-all hover:border-amber-500/40"
                     >
                         <p className="text-lg font-black text-amber-400">{stats.yetToDeliver}</p>
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-500/70">Yet to Deliver</p>
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-500/70">{t('orderMgmt.yetToDeliver')}</p>
                     </button>
                     <button
                         onClick={() => setStatusFilter(statusFilter === 'dispatched' ? 'all' : 'dispatched')}
                         className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-3 text-center transition-all hover:border-indigo-500/40"
                     >
                         <p className="text-lg font-black text-indigo-400">{stats.onProcess}</p>
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-indigo-500/70">On Process</p>
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-indigo-500/70">{t('orderMgmt.onProcess')}</p>
                     </button>
                     <button
                         onClick={() => setStatusFilter(statusFilter === 'delivered' ? 'all' : 'delivered')}
                         className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-center transition-all hover:border-emerald-500/40"
                     >
                         <p className="text-lg font-black text-emerald-400">{stats.delivered}</p>
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-500/70">Delivered</p>
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-500/70">{t('orderMgmt.delivered')}</p>
                     </button>
                 </div>
 
@@ -160,7 +160,7 @@ export default function Orders({ orders, flash }: Props) {
                         </span>
                         <input
                             type="text"
-                            placeholder="Search customer, product..."
+                            placeholder={t('orderMgmt.searchPlaceholder')}
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             className="w-full rounded-2xl border border-slate-800 bg-slate-950 py-2.5 pl-10 pr-3 text-xs text-slate-300 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20"
@@ -175,7 +175,7 @@ export default function Orders({ orders, flash }: Props) {
                                 onClick={() => setStatusFilter(s)}
                                 className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-all ${statusFilter === s ? 'bg-indigo-600 text-white' : 'border border-slate-800 text-slate-400 hover:text-white'}`}
                             >
-                                {s === 'all' ? 'All' : t(`orderMgmt.${s}`)}
+                                {s === 'all' ? t('common.all') : t(`orderMgmt.${s}`)}
                             </button>
                         ))}
                     </div>
@@ -224,13 +224,13 @@ export default function Orders({ orders, flash }: Props) {
                                 {/* Payment summary */}
                                 {o.payment && o.payment_type === 'credit' && (
                                     <div className="rounded-xl border border-amber-500/15 bg-amber-500/5 px-3 py-2 text-xs text-amber-400 space-y-0.5">
-                                        <p>Advance: {fmt(Number(o.payment.advance_amount ?? 0))} • Due: {fmt(Number(o.payment.remaining_amount ?? 0))}</p>
-                                        {o.payment.due_date && <p>Due date: {o.payment.due_date}</p>}
+                                        <p>{t('orderMgmt.advance')}: {fmt(Number(o.payment.advance_amount ?? 0))} • {t('orderMgmt.due')}: {fmt(Number(o.payment.remaining_amount ?? 0))}</p>
+                                        {o.payment.due_date && <p>{t('orderMgmt.dueDateLabel')}: {o.payment.due_date}</p>}
                                     </div>
                                 )}
                                 {o.payment && o.payment_type === 'installment' && (
                                     <div className="rounded-xl border border-orange-500/15 bg-orange-500/5 px-3 py-2 text-xs text-orange-400 space-y-0.5">
-                                        <p>Down: {fmt(Number(o.payment.down_payment ?? 0))} • {o.payment.installment_months}mo × {fmt(Number(o.payment.monthly_installment ?? 0))}/mo</p>
+                                        <p>{t('orderMgmt.down')}: {fmt(Number(o.payment.down_payment ?? 0))} • {o.payment.installment_months}mo × {fmt(Number(o.payment.monthly_installment ?? 0))}/mo</p>
                                     </div>
                                 )}
 
@@ -238,7 +238,7 @@ export default function Orders({ orders, flash }: Props) {
                                     {o.warranty_card_url ? (
                                         <a href={o.warranty_card_url} target="_blank" rel="noreferrer"
                                             className="flex items-center gap-1 rounded-xl border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-400 hover:text-indigo-400">
-                                            <Image className="h-3 w-3" /> Warranty
+                                            <Image className="h-3 w-3" /> {t('orderMgmt.warranty')}
                                         </a>
                                     ) : <span />}
                                     <button

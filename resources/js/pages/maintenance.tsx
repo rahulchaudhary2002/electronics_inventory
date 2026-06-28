@@ -49,18 +49,18 @@ const CASE_COLORS: Record<string, string> = {
     paid_service:    'text-emerald-400',
 };
 
-const CASE_LABELS: Record<string, string> = {
-    warranty_repair: 'Warranty Repair',
-    exchange_return: 'Exchange / Return',
-    paid_service:    'Paid Service',
+const CASE_LABEL_KEYS: Record<string, string> = {
+    warranty_repair: 'maintenance.warrantyRepairLabel',
+    exchange_return: 'maintenance.exchangeReturnLabel',
+    paid_service:    'maintenance.paidServiceLabel',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-    received:    'Received',
-    in_progress: 'In Progress',
-    resolved:    'Resolved',
-    returned:    'Returned',
-    canceled:    'Canceled',
+const STATUS_LABEL_KEYS: Record<string, string> = {
+    received:    'maintenance.received',
+    in_progress: 'maintenance.inProgress',
+    resolved:    'maintenance.resolved',
+    returned:    'maintenance.returned',
+    canceled:    'maintenance.canceled',
 };
 
 // ─── Shared UI ────────────────────────────────────────────────────────────────
@@ -199,12 +199,12 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                         {isSuperadmin && (
                             <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
                                 <FormSelect
-                                    label="Outlet *"
+                                    {...{label: t('maintenance.outletLabel')}}
                                     value={form.data.outlet_id}
                                     onChange={e => form.setData('outlet_id', Number(e.target.value))}
                                     required
                                 >
-                                    <option value="">Select outlet...</option>
+                                    <option value="">{t('maintenance.selectOutlet')}</option>
                                     {outlets.map(o => <option key={o.id} value={o.id}>{o.name} ({o.code})</option>)}
                                 </FormSelect>
                                 {form.errors.outlet_id && <p className="mt-1.5 text-[10px] text-rose-400">{form.errors.outlet_id}</p>}
@@ -217,19 +217,19 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10">
                                     <User className="h-4 w-4 text-indigo-400" />
                                 </div>
-                                <h3 className="font-bold text-white">Customer Info</h3>
+                                <h3 className="font-bold text-white">{t('maintenance.customerInfo')}</h3>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <FormInput
-                                    label="Name *"
-                                    placeholder="Customer name"
+                                    {...{label: t('maintenance.customerNameLabel')}}
+                                    placeholder={t('maintenance.customerName')}
                                     value={form.data.customer_name}
                                     onChange={e => form.setData('customer_name', e.target.value)}
                                     required
                                 />
                                 <FormInput
-                                    label="Mobile *"
-                                    placeholder="98XXXXXXXX"
+                                    {...{label: t('maintenance.mobileLabel')}}
+                                    placeholder={t('maintenance.mobilePlaceholder')}
                                     type="tel"
                                     value={form.data.customer_mobile}
                                     onChange={e => form.setData('customer_mobile', e.target.value)}
@@ -237,7 +237,7 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                                 />
                             </div>
                             <FormInput
-                                label="Address"
+                                {...{label: t('maintenance.addressLabel')}}
                                 placeholder="e.g. Kathmandu, Bagmati"
                                 value={form.data.customer_address}
                                 onChange={e => form.setData('customer_address', e.target.value)}
@@ -250,19 +250,19 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/10">
                                     <Package className="h-4 w-4 text-amber-400" />
                                 </div>
-                                <h3 className="font-bold text-white">Product &amp; Case</h3>
+                                <h3 className="font-bold text-white">{t('maintenance.productAndCase')}</h3>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <FormInput
-                                    label="Product Name *"
+                                    {...{label: t('maintenance.productNameLabel')}}
                                     placeholder="e.g. iPhone 15 Pro"
                                     value={form.data.product_name}
                                     onChange={e => form.setData('product_name', e.target.value)}
                                     required
                                 />
                                 <FormInput
-                                    label="Model Number"
+                                    {...{label: t('maintenance.modelLabel')}}
                                     placeholder="e.g. A3293"
                                     value={form.data.product_model}
                                     onChange={e => form.setData('product_model', e.target.value)}
@@ -280,15 +280,15 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                                             onClick={() => form.setData('case_type', ct)}
                                             className={`rounded-xl py-2.5 text-[10px] font-semibold leading-tight transition-all ${form.data.case_type === ct ? 'bg-indigo-600 text-white' : 'border border-slate-800 text-slate-400 hover:text-white'}`}
                                         >
-                                            {CASE_LABELS[ct]}
+                                            {t(CASE_LABEL_KEYS[ct])}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             <FormTextarea
-                                label="Problem Description *"
-                                placeholder="Describe the issue in detail..."
+                                {...{label: t('maintenance.problemLabel')}}
+                                placeholder={t('maintenance.problemPlaceholder')}
                                 rows={4}
                                 value={form.data.problem}
                                 onChange={e => form.setData('problem', e.target.value)}
@@ -348,7 +348,7 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                                 </span>
                                 <input
                                     type="text"
-                                    placeholder="Search customer, product..."
+                                    placeholder={t('maintenance.searchPlaceholder')}
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
                                     className="w-full rounded-2xl border border-slate-800 bg-slate-950 py-2.5 pl-10 pr-3 text-sm text-slate-300 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20"
@@ -363,7 +363,7 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                                         onClick={() => setStatusFilter(s)}
                                         className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-all ${statusFilter === s ? 'bg-indigo-600 text-white' : 'border border-slate-800 text-slate-400 hover:text-white'}`}
                                     >
-                                        {s === 'all' ? 'All' : STATUS_LABELS[s]}
+                                        {s === 'all' ? t('common.all') : t(STATUS_LABEL_KEYS[s])}
                                     </button>
                                 ))}
                             </div>
@@ -375,7 +375,7 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                                         <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-800">
                                             <Wrench className="h-5 w-5 text-slate-600" />
                                         </div>
-                                        <p className="text-sm font-semibold text-slate-500">No cases found</p>
+                                        <p className="text-sm font-semibold text-slate-500">{t('maintenance.noCasesFound')}</p>
                                     </div>
                                 ) : filtered.map(m => (
                                     <div key={m.id} className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950/60 p-4 transition-colors hover:border-slate-700">
@@ -388,10 +388,10 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                                             </div>
                                             <div className="flex flex-col items-end gap-1 shrink-0">
                                                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${STATUS_COLORS[m.status]}`}>
-                                                    {STATUS_LABELS[m.status]}
+                                                    {t(STATUS_LABEL_KEYS[m.status])}
                                                 </span>
                                                 <span className={`text-[10px] font-semibold ${CASE_COLORS[m.case_type]}`}>
-                                                    {CASE_LABELS[m.case_type]}
+                                                    {t(CASE_LABEL_KEYS[m.case_type])}
                                                 </span>
                                             </div>
                                         </div>
@@ -433,7 +433,7 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10">
                                     <Pencil className="h-4 w-4 text-indigo-400" />
                                 </div>
-                                <h2 className="font-black text-white">Update Status</h2>
+                                <h2 className="font-black text-white">{t('maintenance.updateStatus')}</h2>
                             </div>
                             <button onClick={() => setEditingCase(null)} className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition-all hover:bg-slate-800 hover:text-white">
                                 <X className="h-4 w-4" />
@@ -455,7 +455,7 @@ export default function Maintenance({ maintenances, outlets, flash }: Props) {
                                         onClick={() => setNewStatus(s)}
                                         className={`rounded-2xl py-2.5 text-xs font-semibold transition-all ${newStatus === s ? 'bg-indigo-600 text-white' : 'border border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700 hover:text-white'}`}
                                     >
-                                        {STATUS_LABELS[s]}
+                                        {t(STATUS_LABEL_KEYS[s])}
                                     </button>
                                 ))}
                             </div>

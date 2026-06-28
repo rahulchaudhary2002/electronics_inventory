@@ -25,7 +25,10 @@
       "Bash(sed -i 's/text-\\\\[8px\\\\] text-slate-600\">Stock will be deducted/text-[10px] text-slate-600\">Stock will be deducted/g' pos.tsx)",
       "Bash(sed -i 's/text-\\\\[9px\\\\] font-bold uppercase tracking-wider text-orange-400\">⚡/text-[10px] font-semibold uppercase tracking-wider text-orange-400\">⚡/g' pos.tsx)",
       "Bash(sed -i 's/mb-1.5 block text-\\\\[9px\\\\] font-bold uppercase tracking-wider text-slate-500\">Case Type/mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500\">Case Type/g' maintenance.tsx)",
-      "Bash(sed -i 's/rounded-xl py-2.5 text-\\\\[9px\\\\] font-bold leading-tight/rounded-xl py-2.5 text-[10px] font-semibold leading-tight/g' maintenance.tsx)"
+      "Bash(sed -i 's/rounded-xl py-2.5 text-\\\\[9px\\\\] font-bold leading-tight/rounded-xl py-2.5 text-[10px] font-semibold leading-tight/g' maintenance.tsx)",
+      "Bash(sed -i 's/{maintTotal} cases/{maintTotal} {t\\('\\\\''home.cases'\\\\''\\)}/g' home.tsx)",
+      "Bash(sed -i '297s/home.cases/home.orders/' home.tsx)",
+      "Bash(python3)"
     ]
   }
 }

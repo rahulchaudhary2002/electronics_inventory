@@ -93,7 +93,7 @@ export default function Categories({ categories, flash }: Props) {
                                 <Layers className="h-6 w-6 text-slate-600" />
                             </div>
                             <p className="text-sm font-semibold text-slate-500">{t('categoryMgmt.noCategories')}</p>
-                            <p className="mt-1 text-xs text-slate-600">Add one below ↓</p>
+                            <p className="mt-1 text-xs text-slate-600">{t('common.addOneBelow')}</p>
                         </div>
                     ) : (
                         <div className="space-y-2">

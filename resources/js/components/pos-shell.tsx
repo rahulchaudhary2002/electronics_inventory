@@ -132,7 +132,7 @@ export default function PosShell({ children, title, backHref, activeNav = 'menu'
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => updateAppearance(resolvedAppearance === 'dark' ? 'light' : 'dark')}
-                            title={resolvedAppearance === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                            title={resolvedAppearance === 'dark' ? t('common.switchToLight') : t('common.switchToDark')}
                             className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-800/60 text-slate-400 transition-all hover:text-white"
                         >
                             {resolvedAppearance === 'dark'
