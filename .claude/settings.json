@@ -5,7 +5,27 @@
       "Bash(mysql -u root -proot electro -e \"SHOW TABLES;\")",
       "Bash(docker network *)",
       "Bash(git log *)",
-      "Bash(wait)"
+      "Bash(wait)",
+      "Bash(sed -i 's/text-\\\\[11px\\\\] font-bold text-slate-200/text-sm font-semibold text-white/g' orders.tsx)",
+      "Bash(sed -i 's/text-\\\\[10px\\\\] font-bold text-slate-300/text-xs font-semibold text-slate-200/g' orders.tsx)",
+      "Bash(sed -i 's/text-\\\\[12px\\\\] font-black text-indigo-400/text-sm font-bold text-indigo-400/g' orders.tsx)",
+      "Bash(sed -i 's/text-\\\\[8px\\\\] font-bold uppercase tracking-wide/text-[10px] font-semibold uppercase tracking-wide/g' orders.tsx)",
+      "Bash(sed -i 's/text-\\\\[9px\\\\] font-bold \\\\${PAYMENT/text-[10px] font-semibold ${PAYMENT/g' orders.tsx)",
+      "Bash(sed -i 's/px-3 py-2 text-\\\\[11px\\\\] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/px-3.5 py-2.5 text-sm text-slate-200 outline-none transition-all focus:border-indigo-500\\\\/50 focus:ring-2 focus:ring-indigo-500\\\\/20/g' stocks.tsx)",
+      "Bash(sed -i 's/shrink-0 rounded-xl border border-indigo-500\\\\/30/shrink-0 rounded-2xl border border-indigo-500\\\\/30/g' stocks.tsx)",
+      "Bash(sed -i 's/text-\\\\[9px\\\\] font-bold \\\\${CASE/text-[10px] font-semibold ${CASE/g' maintenance.tsx)",
+      "Bash(sed -i 's/text-\\\\[9px\\\\] font-bold uppercase tracking-wide text-blue-500\\\\/70/text-[10px] font-semibold uppercase text-blue-500\\\\/70/g' maintenance.tsx)",
+      "Bash(sed -i 's/text-\\\\[9px\\\\] font-bold uppercase tracking-wide text-emerald-500\\\\/70/text-[10px] font-semibold uppercase text-emerald-500\\\\/70/g' maintenance.tsx)",
+      "Bash(sed -i 's/text-\\\\[9px\\\\] font-bold uppercase tracking-wide text-violet-500\\\\/70/text-[10px] font-semibold uppercase text-violet-500\\\\/70/g' maintenance.tsx)",
+      "Bash(sed -i 's/text-\\\\[11px\\\\] font-bold\">{formatDisplay\\(from\\)}/text-sm font-semibold\">{formatDisplay\\(from\\)}/g' home.tsx)",
+      "Bash(sed -i 's/text-\\\\[11px\\\\] font-bold\">{formatDisplay\\(to\\)}/text-sm font-semibold\">{formatDisplay\\(to\\)}/g' home.tsx)",
+      "Bash(sed -i 's/text-\\\\[8px\\\\] font-bold uppercase tracking-widest text-slate-600\">Filter by Outlet/text-[10px] font-semibold uppercase tracking-widest text-slate-600\">Filter by Outlet/g' home.tsx)",
+      "Bash(sed -i 's/text-\\\\[9px\\\\] font-bold transition-all \\\\${!outletId/text-xs font-semibold transition-all ${!outletId/g' home.tsx)",
+      "Bash(sed -i 's/text-\\\\[9px\\\\] font-bold transition-all \\\\${outletId/text-xs font-semibold transition-all ${outletId/g' home.tsx)",
+      "Bash(sed -i 's/text-\\\\[8px\\\\] text-slate-600\">Stock will be deducted/text-[10px] text-slate-600\">Stock will be deducted/g' pos.tsx)",
+      "Bash(sed -i 's/text-\\\\[9px\\\\] font-bold uppercase tracking-wider text-orange-400\">⚡/text-[10px] font-semibold uppercase tracking-wider text-orange-400\">⚡/g' pos.tsx)",
+      "Bash(sed -i 's/mb-1.5 block text-\\\\[9px\\\\] font-bold uppercase tracking-wider text-slate-500\">Case Type/mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500\">Case Type/g' maintenance.tsx)",
+      "Bash(sed -i 's/rounded-xl py-2.5 text-\\\\[9px\\\\] font-bold leading-tight/rounded-xl py-2.5 text-[10px] font-semibold leading-tight/g' maintenance.tsx)"
     ]
   }
 }

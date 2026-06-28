@@ -1,7 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Award, Pencil, Trash2 } from 'lucide-react';
+import { Award, CheckCircle2, AlertCircle, Pencil, Trash2, X } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
 import * as brandsRoute from '@/routes/brands';
 
@@ -19,14 +19,18 @@ type Props = {
 function FormField({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
     return (
         <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</label>
+            <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500">{label}</label>
             {children}
-            {error && <p className="mt-1 text-[10px] text-rose-400">{error}</p>}
+            {error && (
+                <p className="mt-1.5 flex items-center gap-1 text-[10px] text-rose-400">
+                    <AlertCircle className="h-3 w-3" /> {error}
+                </p>
+            )}
         </div>
     );
 }
 
-const inputCls = 'w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2.5 text-xs text-slate-200 placeholder-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500';
+const inputCls = 'w-full rounded-2xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20';
 
 export default function Brands({ brands, flash }: Props) {
     const { t } = useTranslation();
@@ -66,48 +70,59 @@ export default function Brands({ brands, flash }: Props) {
         <PosShell title={t('brandMgmt.title')} backHref="/menu" activeNav="menu">
             <Head title={t('brandMgmt.title')} />
 
-            <div className="space-y-4 p-4">
+            <div className="space-y-6 px-4 py-5 md:px-6">
                 {flash?.success && (
-                    <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-xs font-medium text-emerald-400">
+                    <div className="flex items-center gap-2.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-400">
+                        <CheckCircle2 className="h-4 w-4 shrink-0" />
                         {flash.success}
                     </div>
                 )}
 
                 {/* Brand list */}
-                <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                    <div className="flex items-center justify-between">
-                        <h3 className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                            <Award className="h-3.5 w-3.5" /> {t('brandMgmt.allBrands')} ({brands.length})
+                <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+                    <div className="mb-5 flex items-center justify-between border-b border-slate-800/60 pb-4">
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+                            <Award className="h-4 w-4 text-amber-400" /> {t('brandMgmt.allBrands')}
                         </h3>
+                        <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{brands.length}</span>
                     </div>
 
                     {brands.length === 0 ? (
-                        <p className="py-4 text-center text-xs text-slate-600">{t('brandMgmt.noBrands')}</p>
+                        <div className="flex flex-col items-center justify-center py-16 text-center">
+                            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800">
+                                <Award className="h-6 w-6 text-slate-600" />
+                            </div>
+                            <p className="text-sm font-semibold text-slate-500">{t('brandMgmt.noBrands')}</p>
+                            <p className="mt-1 text-xs text-slate-600">Add one below ↓</p>
+                        </div>
                     ) : (
                         <div className="space-y-2">
                             {brands.map((brand) => (
-                                <div key={brand.id} className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2.5">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <span className="text-[11px] font-black text-slate-100 truncate">{brand.name}</span>
-                                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[8px] font-bold border ${
-                                            brand.is_active
-                                                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
-                                                : 'border-slate-700 bg-slate-800 text-slate-500'
-                                        }`}>
-                                            {brand.is_active ? t('brandMgmt.active') : t('brandMgmt.inactive')}
-                                        </span>
+                                <div key={brand.id} className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-950/60 p-4 transition-colors hover:border-slate-700">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400">
+                                        <Award className="h-5 w-5" />
                                     </div>
-                                    <div className="flex shrink-0 gap-1.5 ml-2">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate font-semibold text-white">{brand.name}</p>
+                                    </div>
+                                    <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${
+                                        brand.is_active
+                                            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                                            : 'border-slate-700 bg-slate-800 text-slate-500'
+                                    }`}>
+                                        {brand.is_active ? t('brandMgmt.active') : t('brandMgmt.inactive')}
+                                    </span>
+                                    <div className="flex gap-1.5">
                                         <button
                                             onClick={() => openEdit(brand)}
-                                            className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-700 bg-slate-800 text-slate-400 transition-all hover:border-indigo-500/50 hover:text-indigo-400"
+                                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 bg-slate-800/50 text-slate-400 transition-all hover:border-indigo-500/30 hover:text-indigo-400"
                                         >
                                             <Pencil className="h-3.5 w-3.5" />
                                         </button>
                                         <button
                                             onClick={() => handleDelete(brand.id)}
                                             disabled={deleteForm.processing}
-                                            className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-700 bg-slate-800 text-slate-400 transition-all hover:border-rose-500/50 hover:text-rose-400 disabled:opacity-50"
+                                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 bg-slate-800/50 text-slate-400 transition-all hover:border-rose-500/30 hover:text-rose-400 disabled:opacity-50"
                                         >
                                             <Trash2 className="h-3.5 w-3.5" />
                                         </button>
@@ -119,12 +134,9 @@ export default function Brands({ brands, flash }: Props) {
                 </div>
 
                 {/* Create form */}
-                <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-indigo-400">
-                        {t('brandMgmt.addNew')}
-                    </h3>
-
-                    <form onSubmit={handleCreate} className="space-y-3">
+                <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+                    <p className="mb-4 text-xs font-bold uppercase tracking-widest text-indigo-400">{t('brandMgmt.addNew')}</p>
+                    <form onSubmit={handleCreate} className="space-y-4">
                         <FormField label={t('brandMgmt.brandName') + ' *'} error={createForm.errors.name}>
                             <input
                                 className={inputCls}
@@ -134,13 +146,12 @@ export default function Brands({ brands, flash }: Props) {
                                 required
                             />
                         </FormField>
-
                         <button
                             type="submit"
                             disabled={createForm.processing}
-                            className="flex w-full items-center justify-center gap-1.5 rounded-2xl bg-emerald-600 py-3 text-xs font-bold text-white shadow-lg shadow-emerald-600/10 transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-60"
+                            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
                         >
-                            {createForm.processing ? t('brandMgmt.creating') : '✓ ' + t('brandMgmt.createBtn')}
+                            {createForm.processing ? t('brandMgmt.creating') : t('brandMgmt.createBtn')}
                         </button>
                     </form>
                 </div>
@@ -148,54 +159,66 @@ export default function Brands({ brands, flash }: Props) {
 
             {/* Edit modal */}
             {editingBrand && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md">
-                    <div className="w-full max-w-sm space-y-4 rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-2xl">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <h3 className="flex items-center gap-1.5 text-sm font-black text-indigo-400">
-                                <Pencil className="h-4 w-4" /> {t('brandMgmt.editTitle')}
-                            </h3>
-                            <button onClick={() => setEditingBrand(null)} className="text-lg text-slate-400 hover:text-white">✕</button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+                    <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 shadow-2xl">
+                        <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10">
+                                    <Pencil className="h-4 w-4 text-indigo-400" />
+                                </div>
+                                <h2 className="font-black text-white">{t('brandMgmt.editTitle')}</h2>
+                            </div>
+                            <button
+                                onClick={() => setEditingBrand(null)}
+                                className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition-all hover:bg-slate-800 hover:text-white"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
                         </div>
 
-                        <form onSubmit={handleUpdate} className="space-y-3">
-                            <FormField label={t('brandMgmt.name') + ' *'} error={editForm.errors.name}>
-                                <input
-                                    className={inputCls}
-                                    value={editForm.data.name}
-                                    onChange={e => editForm.setData('name', e.target.value)}
-                                    required
-                                />
-                            </FormField>
+                        <form onSubmit={handleUpdate}>
+                            <div className="space-y-4 px-6 py-5">
+                                <FormField label={t('brandMgmt.name') + ' *'} error={editForm.errors.name}>
+                                    <input
+                                        className={inputCls}
+                                        value={editForm.data.name}
+                                        onChange={e => editForm.setData('name', e.target.value)}
+                                        required
+                                    />
+                                </FormField>
 
-                            <div>
-                                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">{t('brandMgmt.status')}</label>
-                                <div className="flex gap-2">
-                                    {[true, false].map((val) => (
-                                        <button
-                                            key={String(val)}
-                                            type="button"
-                                            onClick={() => editForm.setData('is_active', val)}
-                                            className={`flex-1 rounded-2xl border py-2 text-[11px] font-bold transition-all ${
-                                                editForm.data.is_active === val
-                                                    ? val
-                                                        ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
-                                                        : 'border-slate-600 bg-slate-800 text-slate-300'
-                                                    : 'border-slate-800 bg-slate-950 text-slate-600 hover:border-slate-700'
-                                            }`}
-                                        >
-                                            {val ? t('brandMgmt.active') : t('brandMgmt.inactive')}
-                                        </button>
-                                    ))}
+                                <div>
+                                    <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500">{t('brandMgmt.status')}</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {[true, false].map((val) => (
+                                            <button
+                                                key={String(val)}
+                                                type="button"
+                                                onClick={() => editForm.setData('is_active', val)}
+                                                className={`rounded-xl border py-2.5 text-xs font-semibold transition-all ${
+                                                    editForm.data.is_active === val
+                                                        ? val
+                                                            ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+                                                            : 'border-slate-700 bg-slate-800/50 text-slate-400'
+                                                        : 'border-slate-800 bg-transparent text-slate-600 hover:border-slate-700'
+                                                }`}
+                                            >
+                                                {val ? t('brandMgmt.active') : t('brandMgmt.inactive')}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={editForm.processing}
-                                className="flex w-full items-center justify-center gap-1.5 rounded-2xl bg-indigo-600 py-3 text-xs font-bold text-white transition-all hover:bg-indigo-700 disabled:opacity-60"
-                            >
-                                {editForm.processing ? t('brandMgmt.saving') : '✓ ' + t('brandMgmt.saveChanges')}
-                            </button>
+                            <div className="border-t border-slate-800 px-6 py-4">
+                                <button
+                                    type="submit"
+                                    disabled={editForm.processing}
+                                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-[0.98] disabled:opacity-50"
+                                >
+                                    {editForm.processing ? t('brandMgmt.saving') : t('brandMgmt.saveChanges')}
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>

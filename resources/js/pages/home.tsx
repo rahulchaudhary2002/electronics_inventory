@@ -148,21 +148,21 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                 >
                     <div className="flex items-center gap-2 text-slate-300">
                         <CalendarDays className="h-4 w-4 text-indigo-400" />
-                        <span className="text-[11px] font-bold">{formatDisplay(from)}</span>
+                        <span className="text-sm font-semibold">{formatDisplay(from)}</span>
                         <span className="text-[10px] text-slate-500">→</span>
-                        <span className="text-[11px] font-bold">{formatDisplay(to)}</span>
+                        <span className="text-sm font-semibold">{formatDisplay(to)}</span>
                     </div>
-                    <span className="text-[9px] font-bold uppercase tracking-wide text-indigo-400">Change</span>
+                    <span className="text-xs font-semibold uppercase tracking-wide text-indigo-400">Change</span>
                 </button>
 
                 {/* Outlet filter — superadmin only */}
                 {isSuperadmin && outlets.length > 0 && (
                     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-3">
-                        <p className="mb-2 text-[8px] font-bold uppercase tracking-widest text-slate-600">Filter by Outlet</p>
+                        <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-600">Filter by Outlet</p>
                         <div className="flex flex-wrap gap-1.5">
                             <button
                                 onClick={() => applyOutlet(null)}
-                                className={`rounded-xl px-3 py-1.5 text-[9px] font-bold transition-all ${!outletId ? 'bg-indigo-600 text-white' : 'border border-slate-700 text-slate-400 hover:text-white'}`}
+                                className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${!outletId ? 'bg-indigo-600 text-white' : 'border border-slate-700 text-slate-400 hover:text-white'}`}
                             >
                                 All Outlets
                             </button>
@@ -170,7 +170,7 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                                 <button
                                     key={o.id}
                                     onClick={() => applyOutlet(o.id)}
-                                    className={`rounded-xl px-3 py-1.5 text-[9px] font-bold transition-all ${outletId === o.id ? 'bg-indigo-600 text-white' : 'border border-slate-700 text-slate-400 hover:text-white'}`}
+                                    className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${outletId === o.id ? 'bg-indigo-600 text-white' : 'border border-slate-700 text-slate-400 hover:text-white'}`}
                                 >
                                     {o.name} <span className="opacity-60">({o.code})</span>
                                 </button>
@@ -182,20 +182,20 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                 {/* Top KPIs */}
                 <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-4">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-indigo-400/70">Revenue</p>
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-indigo-400/70">Revenue</p>
                         <p className="mt-1 text-lg font-black text-indigo-300">{fmt(totalRevenue)}</p>
-                        <p className="text-[9px] text-indigo-400/60">{totalOrders} orders</p>
+                        <p className="text-xs text-indigo-400/60">{totalOrders} orders</p>
                     </div>
                     <div className="grid grid-rows-2 gap-3">
                         <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-3 py-2">
-                            <p className="text-[9px] font-bold text-amber-400/70">Maintenance</p>
+                            <p className="text-[10px] font-semibold text-amber-400/70">Maintenance</p>
                             <p className="text-sm font-black text-amber-300">{maintTotal} cases</p>
-                            <p className="text-[9px] text-amber-400/60">{totalMaintOpen} open</p>
+                            <p className="text-xs text-amber-400/60">{totalMaintOpen} open</p>
                         </div>
                         <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 px-3 py-2">
-                            <p className="text-[9px] font-bold text-rose-400/70">Out of Stock</p>
+                            <p className="text-[10px] font-semibold text-rose-400/70">Out of Stock</p>
                             <p className="text-sm font-black text-rose-300">{outOfStock} products</p>
-                            <p className="text-[9px] text-rose-400/60">{lowStock.length} low stock</p>
+                            <p className="text-xs text-rose-400/60">{lowStock.length} low stock</p>
                         </div>
                     </div>
                 </div>
@@ -203,9 +203,9 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                 {/* Revenue sparkline */}
                 {dailySales.length > 1 && (
                     <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                        <h3 className="mb-3 text-[9px] font-black uppercase tracking-widest text-slate-500">◆ Daily Revenue</h3>
+                        <h3 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">◆ Daily Revenue</h3>
                         <Sparkline data={dailySales} />
-                        <div className="mt-2 flex justify-between text-[8px] text-slate-600">
+                        <div className="mt-2 flex justify-between text-[10px] text-slate-600">
                             <span>{formatDisplay(dailySales[0].date)}</span>
                             <span>{formatDisplay(dailySales[dailySales.length - 1].date)}</span>
                         </div>
@@ -217,7 +217,7 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                     <div className="grid grid-cols-2 gap-3">
                         {Object.keys(ordersByStatus).length > 0 && (
                             <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                                <h3 className="mb-3 text-[9px] font-black uppercase tracking-widest text-slate-500">◆ By Status</h3>
+                                <h3 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">◆ By Status</h3>
                                 <div className="relative mx-auto" style={{ maxWidth: 140 }}>
                                     <Doughnut
                                         data={{
@@ -246,7 +246,7 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                                     />
                                     <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                                         <p className="text-lg font-black text-slate-100">{totalOrders}</p>
-                                        <p className="text-[8px] font-bold text-slate-500">orders</p>
+                                        <p className="text-[10px] font-semibold text-slate-500">orders</p>
                                     </div>
                                 </div>
                                 <div className="mt-3 space-y-1">
@@ -254,9 +254,9 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                                         <div key={s} className="flex items-center justify-between">
                                             <div className="flex items-center gap-1.5">
                                                 <span className="h-2 w-2 rounded-full" style={{ background: STATUS_HEX[s] ?? '#475569' }} />
-                                                <span className="text-[9px] capitalize text-slate-400">{s}</span>
+                                                <span className="text-[10px] capitalize text-slate-400">{s}</span>
                                             </div>
-                                            <span className="text-[9px] font-black text-slate-300">{n}</span>
+                                            <span className="text-[10px] font-semibold text-slate-300">{n}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -265,7 +265,7 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
 
                         {Object.keys(ordersByPayment).length > 0 && (
                             <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                                <h3 className="mb-3 text-[9px] font-black uppercase tracking-widest text-slate-500">◆ Payment</h3>
+                                <h3 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">◆ Payment</h3>
                                 <div className="relative mx-auto" style={{ maxWidth: 140 }}>
                                     <Doughnut
                                         data={{
@@ -294,7 +294,7 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                                     />
                                     <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                                         <p className="text-lg font-black text-slate-100">{totalOrders}</p>
-                                        <p className="text-[8px] font-bold text-slate-500">orders</p>
+                                        <p className="text-[10px] font-semibold text-slate-500">orders</p>
                                     </div>
                                 </div>
                                 <div className="mt-3 space-y-1">
@@ -302,9 +302,9 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                                         <div key={p} className="flex items-center justify-between">
                                             <div className="flex items-center gap-1.5">
                                                 <span className="h-2 w-2 rounded-full" style={{ background: PAYMENT_HEX[p] ?? '#475569' }} />
-                                                <span className="text-[9px] capitalize text-slate-400">{p}</span>
+                                                <span className="text-[10px] capitalize text-slate-400">{p}</span>
                                             </div>
-                                            <span className="text-[9px] font-black text-slate-300">{n}</span>
+                                            <span className="text-[10px] font-semibold text-slate-300">{n}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -316,7 +316,7 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                 {/* Top products — horizontal bar chart */}
                 {topProducts.length > 0 && (
                     <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                        <h3 className="mb-4 text-[9px] font-black uppercase tracking-widest text-slate-500">◆ Top Products by Revenue</h3>
+                        <h3 className="mb-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">◆ Top Products by Revenue</h3>
                         <Bar
                             data={{
                                 labels: topProducts.map(tp =>
@@ -366,17 +366,17 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                 {/* Low stock alert */}
                 {lowStock.length > 0 && (
                     <div className="rounded-3xl border border-rose-500/20 bg-rose-500/5 p-4 shadow-xl">
-                        <h3 className="mb-3 text-[9px] font-black uppercase tracking-widest text-rose-400">⚠ Low Stock Alert</h3>
+                        <h3 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-rose-400">⚠ Low Stock Alert</h3>
                         <div className="space-y-1.5">
                             {lowStock.map(s => (
                                 <div key={s.id} className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-[10px] font-bold text-slate-300">
+                                        <p className="text-xs font-semibold text-slate-300">
                                             {s.product.name}{s.product.model_number ? ` (${s.product.model_number})` : ''}
                                         </p>
-                                        <p className="text-[9px] text-slate-500">{s.outlet.code}</p>
+                                        <p className="text-[10px] text-slate-500">{s.outlet.code}</p>
                                     </div>
-                                    <span className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[10px] font-black text-rose-400">
+                                    <span className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[10px] font-semibold text-rose-400">
                                         {Number(s.quantity).toLocaleString()} left
                                     </span>
                                 </div>
@@ -388,7 +388,7 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                 {/* Maintenance by status — doughnut */}
                 {Object.keys(maintByStatus).length > 0 && (
                     <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                        <h3 className="mb-3 text-[9px] font-black uppercase tracking-widest text-slate-500">◆ Maintenance by Status</h3>
+                        <h3 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">◆ Maintenance by Status</h3>
                         <div className="flex items-center gap-4">
                             <div className="relative shrink-0" style={{ width: 120, height: 120 }}>
                                 <Doughnut
@@ -418,7 +418,7 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                                 />
                                 <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                                     <p className="text-base font-black text-slate-100">{maintTotal}</p>
-                                    <p className="text-[8px] font-bold text-slate-500">cases</p>
+                                    <p className="text-[10px] font-semibold text-slate-500">cases</p>
                                 </div>
                             </div>
                             <div className="flex-1 space-y-1.5">
@@ -426,9 +426,9 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                                     <div key={s} className="flex items-center justify-between">
                                         <div className="flex items-center gap-1.5">
                                             <span className="h-2 w-2 rounded-full" style={{ background: MAINT_HEX[s] ?? '#475569' }} />
-                                            <span className="text-[9px] capitalize text-slate-400">{s.replace('_', ' ')}</span>
+                                            <span className="text-[10px] capitalize text-slate-400">{s.replace('_', ' ')}</span>
                                         </div>
-                                        <span className="text-[9px] font-black text-slate-300">{n}</span>
+                                        <span className="text-[10px] font-semibold text-slate-300">{n}</span>
                                     </div>
                                 ))}
                             </div>
@@ -450,7 +450,7 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                         {/* Header */}
                         <div className="flex items-center justify-between px-5 pb-3 pt-2 border-b border-slate-800">
                             <div>
-                                <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Filter Period</p>
+                                <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Filter Period</p>
                                 <h3 className="text-sm font-black text-white">Select Date Range</h3>
                             </div>
                             <button
@@ -479,11 +479,11 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                                     button_next:    'flex h-7 w-7 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-slate-400 hover:text-white hover:border-indigo-500/50 transition-all text-xs',
                                     month_grid:     'w-full border-collapse',
                                     weekdays:       'flex mb-1',
-                                    weekday:        'flex-1 text-center text-[9px] font-bold uppercase tracking-wider text-slate-600 py-1',
+                                    weekday:        'flex-1 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-600 py-1',
                                     weeks:          'flex flex-col gap-0.5',
                                     week:           'flex',
                                     day:            'flex-1 flex items-center justify-center p-0',
-                                    day_button:     'w-full h-8 rounded-lg text-[11px] font-semibold text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-all cursor-pointer',
+                                    day_button:     'w-full h-8 rounded-lg text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-all cursor-pointer',
                                     today:          'font-black text-indigo-400',
                                     selected:       '[&>button]:bg-indigo-600 [&>button]:text-white [&>button]:font-bold',
                                     range_start:    '[&>button]:bg-indigo-600 [&>button]:text-white [&>button]:rounded-l-lg [&>button]:rounded-r-none [&>button]:font-bold',
@@ -499,13 +499,13 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                         {range?.from && (
                             <div className="mx-4 mb-3 flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950 px-3 py-2">
                                 <div className="text-center flex-1">
-                                    <p className="text-[8px] font-bold uppercase tracking-wide text-slate-600">From</p>
-                                    <p className="text-[11px] font-black text-indigo-400">{formatDisplay(formatDate(range.from))}</p>
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-600">From</p>
+                                    <p className="text-sm font-bold text-indigo-400">{formatDisplay(formatDate(range.from))}</p>
                                 </div>
                                 <div className="h-6 w-px bg-slate-800" />
                                 <div className="text-center flex-1">
-                                    <p className="text-[8px] font-bold uppercase tracking-wide text-slate-600">To</p>
-                                    <p className="text-[11px] font-black text-indigo-400">
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-600">To</p>
+                                    <p className="text-sm font-bold text-indigo-400">
                                         {range.to ? formatDisplay(formatDate(range.to)) : '—'}
                                     </p>
                                 </div>
@@ -526,7 +526,7 @@ export default function Home({ from, to, outletId, outlets, totalRevenue, totalO
                                         const from = new Date(); from.setDate(from.getDate() - days);
                                         setRange({ from, to });
                                     }}
-                                    className="rounded-xl border border-slate-800 bg-slate-800/60 py-1.5 text-[9px] font-bold text-slate-400 hover:border-indigo-500/40 hover:text-indigo-400 transition-all"
+                                    className="rounded-xl border border-slate-800 bg-slate-800/60 py-1.5 text-[10px] font-semibold text-slate-400 hover:border-indigo-500/40 hover:text-indigo-400 transition-all"
                                 >
                                     {label}
                                 </button>

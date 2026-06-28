@@ -2,10 +2,11 @@ import { Head, Link } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/use-auth';
 import PosShell from '@/components/pos-shell';
+import { Store, Tag, Award, Package, ClipboardList, Settings, ChevronRight } from 'lucide-react';
 
 type MenuCard = {
     href: string;
-    icon: string;
+    icon: React.ElementType;
     label: string;
     description: string;
     color: string;
@@ -21,7 +22,7 @@ export default function Menu() {
     const cards: MenuCard[] = [
         {
             href: '/outlets',
-            icon: '🏪',
+            icon: Store,
             label: t('menu.outletManagement'),
             description: t('menu.outletManagementDesc'),
             color: 'text-emerald-400',
@@ -31,7 +32,7 @@ export default function Menu() {
         },
         {
             href: '/categories',
-            icon: '🏷️',
+            icon: Tag,
             label: t('menu.categoryManagement'),
             description: t('menu.categoryManagementDesc'),
             color: 'text-violet-400',
@@ -40,7 +41,7 @@ export default function Menu() {
         },
         {
             href: '/brands',
-            icon: '🏅',
+            icon: Award,
             label: t('menu.brandManagement'),
             description: t('menu.brandManagementDesc'),
             color: 'text-amber-400',
@@ -49,7 +50,7 @@ export default function Menu() {
         },
         {
             href: '/products',
-            icon: '📦',
+            icon: Package,
             label: t('menu.productManagement'),
             description: t('menu.productManagementDesc'),
             color: 'text-sky-400',
@@ -58,7 +59,7 @@ export default function Menu() {
         },
         {
             href: '/orders',
-            icon: '🧾',
+            icon: ClipboardList,
             label: t('menu.orderManagement'),
             description: t('menu.orderManagementDesc'),
             color: 'text-teal-400',
@@ -67,7 +68,7 @@ export default function Menu() {
         },
         {
             href: '/settings/profile',
-            icon: '⚙️',
+            icon: Settings,
             label: t('settings.title'),
             description: t('menu.settingsDesc'),
             color: 'text-slate-300',
@@ -82,29 +83,37 @@ export default function Menu() {
         <PosShell activeNav="menu">
             <Head title={t('tabs.menu')} />
 
-            <div className="p-4 space-y-4">
-                <div className="pt-1 pb-2">
-                    <h2 className="text-base font-black text-white">{t('tabs.menu')}</h2>
+            <div className="space-y-6 px-4 py-5 md:px-6">
+                <div>
+                    <h2 className="text-base font-bold text-white">{t('tabs.menu')}</h2>
                     <p className="text-xs text-slate-500 mt-0.5">{t('menu.subtitle')}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                    {visibleCards.map((card) => (
-                        <Link
-                            key={card.href}
-                            href={card.href}
-                            className={`flex flex-col rounded-3xl border bg-slate-900 p-4 shadow-xl transition-all active:scale-[0.97] ${card.borderColor}`}
-                        >
-                            <div className={`mb-3 flex h-11 w-11 items-center justify-center rounded-2xl text-2xl ${card.bgColor}`}>
-                                {card.icon}
-                            </div>
-                            <p className={`text-xs font-black leading-tight ${card.color}`}>{card.label}</p>
-                            <p className="mt-1.5 text-[10px] leading-relaxed text-slate-500">{card.description}</p>
-                        </Link>
-                    ))}
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                    {visibleCards.map((card) => {
+                        const Icon = card.icon;
+                        return (
+                            <Link
+                                key={card.href}
+                                href={card.href}
+                                className={`flex flex-col gap-3 rounded-3xl border bg-slate-900 p-5 shadow-xl transition-all hover:scale-[1.01] active:scale-[0.98] ${card.borderColor}`}
+                            >
+                                <div className="flex items-start justify-between">
+                                    <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${card.bgColor}`}>
+                                        <Icon className={`h-6 w-6 ${card.color}`} />
+                                    </div>
+                                    <ChevronRight className="h-4 w-4 text-slate-600 mt-1" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-white leading-tight">{card.label}</p>
+                                    <p className="mt-1 text-xs text-slate-500 leading-relaxed">{card.description}</p>
+                                </div>
+                            </Link>
+                        );
+                    })}
                 </div>
 
-                <div className="pt-4 text-center">
+                <div className="pt-2 text-center">
                     <p className="text-[9px] font-bold uppercase tracking-widest text-slate-700">
                         {t('common.appName')} • {t('common.enterprisePos')}
                     </p>

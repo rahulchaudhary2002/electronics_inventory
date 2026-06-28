@@ -1,7 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Package, Pencil, Plus, Trash2, Store } from 'lucide-react';
+import { CheckCircle2, Package, Pencil, Plus, Trash2, Store, X } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
 import { QuickCreateModal } from '@/components/quick-create-modal';
 import * as productsRoute from '@/routes/products';
@@ -102,8 +102,8 @@ function OutletStockEditor({
                                 onChange={() => toggle(outlet)}
                                 className="accent-indigo-500"
                             />
-                            <span className="text-[11px] font-bold text-slate-200">{outlet.name}</span>
-                            <span className="rounded-full border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[8px] font-bold text-slate-500">{outlet.code}</span>
+                            <span className="text-sm font-semibold text-slate-100">{outlet.name}</span>
+                            <span className="rounded-full border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-400">{outlet.code}</span>
                         </label>
                         {checked && (
                             <div className="grid grid-cols-2 gap-2 px-3 pb-3">
@@ -196,21 +196,31 @@ export default function Products({ products, brands: initialBrands, categories: 
         <PosShell title={t('productMgmt.title')} backHref="/menu" activeNav="menu">
             <Head title={t('productMgmt.title')} />
 
-            <div className="space-y-4 p-4">
+            <div className="space-y-6 px-4 py-5 md:px-6">
                 {flash?.success && (
-                    <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-xs font-medium text-emerald-400">
+                    <div className="flex items-center gap-2.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-400">
+                        <CheckCircle2 className="h-4 w-4 shrink-0" />
                         {flash.success}
                     </div>
                 )}
 
                 {/* Product list */}
-                <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                    <h3 className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                        <Package className="h-3.5 w-3.5" /> {t('productMgmt.allProducts')} ({products.length})
-                    </h3>
+                <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+                    <div className="mb-5 flex items-center justify-between border-b border-slate-800/60 pb-4">
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+                            <Package className="h-4 w-4 text-sky-400" /> {t('productMgmt.allProducts')}
+                        </h3>
+                        <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400">{products.length}</span>
+                    </div>
 
                     {products.length === 0 ? (
-                        <p className="py-4 text-center text-xs text-slate-600">{t('productMgmt.noProducts')}</p>
+                        <div className="flex flex-col items-center justify-center py-16 text-center">
+                            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800">
+                                <Package className="h-6 w-6 text-slate-600" />
+                            </div>
+                            <p className="text-sm font-semibold text-slate-500">{t('productMgmt.noProducts')}</p>
+                            <p className="mt-1 text-xs text-slate-600">Add one below ↓</p>
+                        </div>
                     ) : (
                         <div className="space-y-2">
                             {products.map(product => (
@@ -218,11 +228,11 @@ export default function Products({ products, brands: initialBrands, categories: 
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-1.5">
-                                                <span className="text-[11px] font-black text-slate-100">{product.name}</span>
+                                                <span className="text-sm font-semibold text-white">{product.name}</span>
                                                 {product.model_number && (
-                                                    <span className="rounded-full border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[8px] font-bold text-slate-400">{product.model_number}</span>
+                                                    <span className="rounded-full border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-400">{product.model_number}</span>
                                                 )}
-                                                <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-bold border ${
+                                                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold border ${
                                                     product.is_active
                                                         ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
                                                         : 'border-slate-700 bg-slate-800 text-slate-500'
@@ -231,19 +241,19 @@ export default function Products({ products, brands: initialBrands, categories: 
                                                 </span>
                                             </div>
                                             <div className="mt-1 flex flex-wrap gap-1">
-                                                <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-1.5 py-0.5 text-[8px] text-violet-400">{product.category.name}</span>
-                                                <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[8px] text-amber-400">{product.brand.name}</span>
+                                                <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-1.5 py-0.5 text-[10px] text-violet-400">{product.category.name}</span>
+                                                <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-400">{product.brand.name}</span>
                                                 {product.type && (
-                                                    <span className="rounded-full border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[8px] text-slate-400">{product.type}</span>
+                                                    <span className="rounded-full border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-400">{product.type}</span>
                                                 )}
                                                 {product.warranty && (
-                                                    <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-1.5 py-0.5 text-[8px] text-sky-400">{product.warranty}</span>
+                                                    <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-1.5 py-0.5 text-[10px] text-sky-400">{product.warranty}</span>
                                                 )}
                                             </div>
                                             {product.outlets.length > 0 && (
                                                 <div className="mt-1.5 flex flex-wrap gap-1">
                                                     {product.outlets.map(o => (
-                                                        <span key={o.id} className="flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900 px-2 py-0.5 text-[8px] text-slate-400">
+                                                        <span key={o.id} className="flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] text-slate-400">
                                                             <Store className="h-2.5 w-2.5" /> {o.code} · {o.pivot.initial_qty} · NPR {Number(o.pivot.cost).toLocaleString()}
                                                         </span>
                                                     ))}
@@ -273,15 +283,19 @@ export default function Products({ products, brands: initialBrands, categories: 
                 </div>
 
                 {/* Create form */}
-                <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-indigo-400">
-                        {t('productMgmt.addNew')}
-                    </h3>
+                <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+                    <div className="mb-5 flex items-center justify-between border-b border-slate-800/60 pb-4">
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+                            <Plus className="h-4 w-4 text-indigo-400" /> {t('productMgmt.addNew')}
+                        </h3>
+                    </div>
 
-                    <form onSubmit={handleCreate} className="space-y-3">
+                    <form onSubmit={handleCreate} className="space-y-4">
                         {/* Basic info */}
-                        <div className="space-y-2.5 rounded-2xl border border-slate-800 bg-slate-950 p-3">
-                            <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Product Details</p>
+                        <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+                            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                                <Package className="h-3 w-3" /> Product Details
+                            </p>
 
                             <FormField label={t('productMgmt.productName') + ' *'} error={createForm.errors.name}>
                                 <input className={inputCls} placeholder={t('productMgmt.namePlaceholder')} value={createForm.data.name} onChange={e => createForm.setData('name', e.target.value)} required />
@@ -329,9 +343,11 @@ export default function Products({ products, brands: initialBrands, categories: 
                         </div>
 
                         {/* Outlet stock */}
-                        <div className="space-y-2.5 rounded-2xl border border-indigo-500/20 bg-indigo-950/20 p-3">
-                            <p className="text-[9px] font-bold uppercase tracking-wider text-indigo-400">{t('productMgmt.outletStock')}</p>
-                            <p className="text-[10px] text-slate-500">{t('productMgmt.outletStockDesc')}</p>
+                        <div className="space-y-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-4">
+                            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-indigo-400">
+                                <Store className="h-3 w-3" /> {t('productMgmt.outletStock')}
+                            </p>
+                            <p className="text-xs text-slate-500">{t('productMgmt.outletStockDesc')}</p>
                             {outlets.length === 0
                                 ? <p className="text-xs text-slate-600">{t('productMgmt.noOutlets')}</p>
                                 : <OutletStockEditor outlets={outlets} entries={createForm.data.outlets} onChange={v => createForm.setData('outlets', v)} />
@@ -341,9 +357,9 @@ export default function Products({ products, brands: initialBrands, categories: 
                         <button
                             type="submit"
                             disabled={createForm.processing}
-                            className="flex w-full items-center justify-center gap-1.5 rounded-2xl bg-emerald-600 py-3 text-xs font-bold text-white shadow-lg shadow-emerald-600/10 transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-60"
+                            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-60"
                         >
-                            {createForm.processing ? t('productMgmt.creating') : '✓ ' + t('productMgmt.createBtn')}
+                            {createForm.processing ? t('productMgmt.creating') : t('productMgmt.createBtn')}
                         </button>
                     </form>
                 </div>
@@ -351,16 +367,22 @@ export default function Products({ products, brands: initialBrands, categories: 
 
             {/* Edit modal */}
             {editingProduct && (
-                <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-950/90 p-4 backdrop-blur-md">
-                    <div className="my-4 w-full max-w-sm space-y-4 rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-2xl">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <h3 className="flex items-center gap-1.5 text-sm font-black text-indigo-400">
-                                <Pencil className="h-4 w-4" /> {t('productMgmt.editTitle')}
-                            </h3>
-                            <button onClick={() => setEditingProduct(null)} className="text-lg text-slate-400 hover:text-white">✕</button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm">
+                    <div className="my-auto w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 shadow-2xl">
+                        <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10">
+                                    <Pencil className="h-4 w-4 text-indigo-400" />
+                                </div>
+                                <h2 className="font-black text-white">{t('productMgmt.editTitle')}</h2>
+                            </div>
+                            <button onClick={() => setEditingProduct(null)} className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition-all hover:bg-slate-800 hover:text-white">
+                                <X className="h-4 w-4" />
+                            </button>
                         </div>
 
-                        <form onSubmit={handleUpdate} className="space-y-3">
+                        <form onSubmit={handleUpdate}>
+                        <div className="space-y-3 px-6 py-5">
                             <FormField label={t('productMgmt.name') + ' *'} error={editForm.errors.name}>
                                 <input className={inputCls} value={editForm.data.name} onChange={e => editForm.setData('name', e.target.value)} required />
                             </FormField>
@@ -410,7 +432,7 @@ export default function Products({ products, brands: initialBrands, categories: 
                                 <div className="flex gap-2">
                                     {([true, false] as const).map(val => (
                                         <button key={String(val)} type="button" onClick={() => editForm.setData('is_active', val)}
-                                            className={`flex-1 rounded-2xl border py-2 text-[11px] font-bold transition-all ${
+                                            className={`flex-1 rounded-2xl border py-2 text-xs font-semibold transition-all ${
                                                 editForm.data.is_active === val
                                                     ? val ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400' : 'border-slate-600 bg-slate-800 text-slate-300'
                                                     : 'border-slate-800 bg-slate-950 text-slate-600 hover:border-slate-700'
@@ -421,15 +443,20 @@ export default function Products({ products, brands: initialBrands, categories: 
                                 </div>
                             </div>
 
-                            <div className="space-y-2 rounded-2xl border border-indigo-500/20 bg-indigo-950/20 p-3">
-                                <p className="text-[9px] font-bold uppercase tracking-wider text-indigo-400">{t('productMgmt.outletStock')}</p>
+                            <div className="space-y-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-4">
+                                <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-indigo-400">
+                                    <Store className="h-3 w-3" /> {t('productMgmt.outletStock')}
+                                </p>
                                 <OutletStockEditor outlets={outlets} entries={editForm.data.outlets} onChange={v => editForm.setData('outlets', v)} />
                             </div>
+                        </div>
 
+                        <div className="border-t border-slate-800 px-6 py-4">
                             <button type="submit" disabled={editForm.processing}
-                                className="flex w-full items-center justify-center gap-1.5 rounded-2xl bg-indigo-600 py-3 text-xs font-bold text-white transition-all hover:bg-indigo-700 disabled:opacity-60">
-                                {editForm.processing ? t('productMgmt.saving') : '✓ ' + t('productMgmt.saveChanges')}
+                                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-[0.98] disabled:opacity-60">
+                                {editForm.processing ? t('productMgmt.saving') : t('productMgmt.saveChanges')}
                             </button>
+                        </div>
                         </form>
                     </div>
                 </div>

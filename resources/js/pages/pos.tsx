@@ -1,7 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Image } from 'lucide-react';
+import { CheckCircle2, CreditCard, Store, User, Package, ClipboardCheck, X, Image } from 'lucide-react';
 import PosShell from '@/components/pos-shell';
 import { useAuth } from '@/hooks/use-auth';
 import * as ordersRoute from '@/routes/orders';
@@ -27,11 +27,13 @@ const EMI_MONTHS    = [3, 6, 9, 12, 18, 24, 36];
 
 // ─── Shared UI ────────────────────────────────────────────────────────────────
 
+const fieldCls = 'w-full rounded-2xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-50';
+
 function FormInput({ label, className = '', ...props }: { label: string; className?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
     return (
         <div>
-            <label className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-slate-500">{label}</label>
-            <input className={`w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${className}`} {...props} />
+            <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">{label}</label>
+            <input className={`${fieldCls} ${className}`} {...props} />
         </div>
     );
 }
@@ -39,18 +41,21 @@ function FormInput({ label, className = '', ...props }: { label: string; classNa
 function FormSelect({ label, children, className = '', ...props }: { label: string; children: React.ReactNode; className?: string } & React.SelectHTMLAttributes<HTMLSelectElement>) {
     return (
         <div>
-            <label className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-slate-500">{label}</label>
-            <select className={`w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${className}`} {...props}>
+            <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">{label}</label>
+            <select className={`${fieldCls} ${className}`} {...props}>
                 {children}
             </select>
         </div>
     );
 }
 
-function SectionHeading({ icon, label }: { icon: string; label: string }) {
+function SectionHeading({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
     return (
-        <div className="border-b border-slate-800/80 pb-2">
-            <h3 className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-slate-500">{icon} {label}</h3>
+        <div className="flex items-center gap-3 border-b border-slate-800/60 pb-4">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-800">
+                <Icon className="h-4 w-4 text-slate-400" />
+            </div>
+            <h3 className="font-bold text-white">{label}</h3>
         </div>
     );
 }
@@ -58,8 +63,8 @@ function SectionHeading({ icon, label }: { icon: string; label: string }) {
 function InfoRow({ label, value, color = 'text-slate-300' }: { label: string; value: string; color?: string }) {
     return (
         <div className="flex items-center justify-between">
-            <span className="text-[10px] text-slate-500">{label}</span>
-            <span className={`text-[11px] font-bold ${color}`}>{value}</span>
+            <span className="text-xs text-slate-500">{label}</span>
+            <span className={`text-sm font-semibold ${color}`}>{value}</span>
         </div>
     );
 }
@@ -157,24 +162,25 @@ export default function Pos({ outlets, stocks, flash }: Props) {
         <PosShell activeNav="pos">
             <Head title={t('tabs.pos')} />
 
-            <div className="space-y-4 p-4">
+            <div className="space-y-6 px-4 py-5 md:px-6">
                 {flash?.success && (
-                    <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-xs font-medium text-emerald-400">
+                    <div className="flex items-center gap-2.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-400">
+                        <CheckCircle2 className="h-4 w-4 shrink-0" />
                         {flash.success}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Origin & Destination Outlets */}
-                    <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                        <SectionHeading icon="🏪" label="Outlets" />
+                    <div className="space-y-4 rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+                        <SectionHeading icon={Store} label="Outlets" />
                         <div className="grid grid-cols-2 gap-3">
                             {/* Origin — read-only for outlet users */}
                             <div>
-                                <label className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-slate-500">Origin *</label>
+                                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">Origin *</label>
                                 {isSuperadmin ? (
                                     <select
-                                        className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                        className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-200 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20"
                                         value={form.data.origin_outlet_id}
                                         onChange={e => form.setData('origin_outlet_id', Number(e.target.value))}
                                         required
@@ -183,7 +189,7 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                                         {outlets.map(o => <option key={o.id} value={o.id}>{o.name} ({o.code})</option>)}
                                     </select>
                                 ) : (
-                                    <div className="w-full rounded-xl border border-slate-800 bg-slate-950/50 px-3 py-2 text-[11px] text-slate-400">
+                                    <div className="w-full rounded-2xl border border-slate-800 bg-slate-950/50 px-3.5 py-2.5 text-sm text-slate-400">
                                         {outlets.find(o => o.id === userOutletId)?.name ?? '—'}
                                     </div>
                                 )}
@@ -191,9 +197,9 @@ export default function Pos({ outlets, stocks, flash }: Props) {
 
                             {/* Destination — selectable, drives stock filter */}
                             <div>
-                                <label className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-slate-500">Destination *</label>
+                                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">Destination *</label>
                                 <select
-                                    className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                    className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-200 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20"
                                     value={form.data.destination_outlet_id}
                                     onChange={e => {
                                         const id = Number(e.target.value);
@@ -213,12 +219,12 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                                 </select>
                             </div>
                         </div>
-                        <p className="text-[8px] text-slate-600">Stock will be deducted from the destination outlet</p>
+                        <p className="text-[10px] text-slate-600">Stock will be deducted from the destination outlet</p>
                     </div>
 
                     {/* Customer */}
-                    <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                        <SectionHeading icon="👤" label={t('orderMgmt.customer')} />
+                    <div className="space-y-4 rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+                        <SectionHeading icon={User} label={t('orderMgmt.customer')} />
                         <div className="grid grid-cols-2 gap-2">
                             <FormInput
                                 label={t('orderMgmt.customerName') + ' *'}
@@ -245,8 +251,8 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                     </div>
 
                     {/* Product & Price */}
-                    <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                        <SectionHeading icon="📦" label={t('orderMgmt.product')} />
+                    <div className="space-y-4 rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+                        <SectionHeading icon={Package} label={t('orderMgmt.product')} />
                         <FormSelect
                             label={t('orderMgmt.product') + ' *'}
                             value={form.data.product_id}
@@ -291,8 +297,8 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                     </div>
 
                     {/* Payment */}
-                    <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                        <SectionHeading icon="💳" label={t('orderMgmt.paymentType')} />
+                    <div className="space-y-4 rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+                        <SectionHeading icon={CreditCard} label={t('orderMgmt.paymentType')} />
 
                         <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-5">
                             {PAYMENT_TYPES.map(pt => (
@@ -310,7 +316,7 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                         {/* Credit fields */}
                         {form.data.payment_type === 'credit' && (
                             <div className="space-y-3 rounded-2xl border border-amber-500/15 bg-amber-500/5 p-3">
-                                <p className="text-[9px] font-bold uppercase tracking-wider text-amber-400">Credit / Due Details</p>
+                                <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">Credit / Due Details</p>
                                 <FormInput
                                     label={t('orderMgmt.advanceAmount')}
                                     type="number" min={0} step="0.01" placeholder="0.00"
@@ -330,7 +336,7 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                         {/* EMI calculator */}
                         {form.data.payment_type === 'installment' && (
                             <div className="space-y-3 rounded-2xl border border-orange-500/15 bg-orange-500/5 p-3">
-                                <p className="text-[9px] font-bold uppercase tracking-wider text-orange-400">⚡ {t('orderMgmt.emiCalculator')}</p>
+                                <p className="text-[10px] font-semibold uppercase tracking-wider text-orange-400">⚡ {t('orderMgmt.emiCalculator')}</p>
                                 <div className="grid grid-cols-2 gap-2">
                                     <FormInput
                                         label={t('orderMgmt.downPayment')}
@@ -367,8 +373,8 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                     </div>
 
                     {/* Status & Warranty */}
-                    <div className="space-y-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
-                        <SectionHeading icon="📋" label={t('orderMgmt.statusLabel')} />
+                    <div className="space-y-4 rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+                        <SectionHeading icon={ClipboardCheck} label={t('orderMgmt.statusLabel')} />
 
                         <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-5">
                             {STATUS_LIST.map(s => (
@@ -385,7 +391,7 @@ export default function Pos({ outlets, stocks, flash }: Props) {
 
                         {/* Warranty card upload */}
                         <div>
-                            <label className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-slate-500">{t('orderMgmt.warrantyCard')}</label>
+                            <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-500">{t('orderMgmt.warrantyCard')}</label>
                             {warrantyPreview ? (
                                 <div className="relative">
                                     <img src={warrantyPreview} alt="Warranty" className="h-28 w-full rounded-xl object-cover border border-slate-800" />
@@ -409,9 +415,10 @@ export default function Pos({ outlets, stocks, flash }: Props) {
                     <button
                         type="submit"
                         disabled={form.processing}
-                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-teal-600/15 transition-all hover:bg-teal-700 active:scale-[0.98] disabled:opacity-60"
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-600/20 transition-all hover:bg-teal-700 active:scale-[0.98] disabled:opacity-60"
                     >
-                        {form.processing ? t('orderMgmt.creating') : '🧾 ' + t('orderMgmt.createBtn')}
+                        <ClipboardCheck className="h-4 w-4" />
+                        {form.processing ? t('orderMgmt.creating') : t('orderMgmt.createBtn')}
                     </button>
                 </form>
             </div>
