@@ -30,6 +30,8 @@ export default {
         noResults: 'No results found',
         saving: 'Saving...',
         left: 'left',
+        optional: 'Optional',
+        clearAll: 'Clear all',
     },
     home: {
         change: 'Change',

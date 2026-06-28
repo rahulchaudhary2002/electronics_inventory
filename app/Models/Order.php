@@ -4,26 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
     protected $fillable = [
-        'origin_outlet_id', 'destination_outlet_id', 'product_id',
+        'origin_outlet_id', 'destination_outlet_id',
         'customer_name', 'customer_mobile', 'customer_address',
-        'price', 'quantity', 'payment_type', 'status', 'warranty_card',
+        'payment_type', 'status',
     ];
-
-    protected $casts = [
-        'price' => 'decimal:2',
-    ];
-
-    protected $appends = ['warranty_card_url'];
-
-    public function getWarrantyCardUrlAttribute(): ?string
-    {
-        return $this->warranty_card ? asset('storage/' . $this->warranty_card) : null;
-    }
 
     public function originOutlet(): BelongsTo
     {
@@ -35,9 +25,9 @@ class Order extends Model
         return $this->belongsTo(Outlet::class, 'destination_outlet_id');
     }
 
-    public function product(): BelongsTo
+    public function items(): HasMany
     {
-        return $this->belongsTo(Product::class);
+        return $this->hasMany(OrderItem::class);
     }
 
     public function payment(): HasOne

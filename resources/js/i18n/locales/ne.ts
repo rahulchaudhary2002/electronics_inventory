@@ -30,6 +30,8 @@ export default {
         noResults: 'कुनै नतिजा फेला परेन',
         saving: 'सुरक्षित गर्दै...',
         left: 'बाँकी',
+        optional: 'ऐच्छिक',
+        clearAll: 'सबै हटाउनुस्',
     },
     home: {
         change: 'परिवर्तन',

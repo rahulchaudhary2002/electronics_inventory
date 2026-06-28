@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Maintenance;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Outlet;
 use App\Models\Stock;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class HomeController extends Controller
         $user      = $request->user();
         $from      = $request->input('from', now()->startOfMonth()->toDateString());
         $to        = $request->input('to', now()->toDateString());
-        $outletId  = $user->is_superadmin ? $request->integer('outlet_id') ?: null : $user->outlet_id;
+        $outletId  = $user->is_superadmin ? ($request->integer('outlet_id') ?: null) : $user->outlet_id;
         $fromDt    = $from . ' 00:00:00';
         $toDt      = $to   . ' 23:59:59';
 
@@ -26,27 +27,35 @@ class HomeController extends Controller
         // Maintenance/stock scoped by outlet_id
         $scoped      = fn ($q) => $outletId ? $q->where('outlet_id', $outletId) : $q;
 
-        // Orders
-        $orders          = $orderScoped(Order::whereBetween('created_at', [$fromDt, $toDt]))->get(['id', 'price', 'quantity', 'payment_type', 'status']);
-        $totalRevenue    = $orders->sum(fn ($o) => (float) $o->price);
+        // Orders — base query for counts/groupings
+        $orders          = $orderScoped(Order::whereBetween('created_at', [$fromDt, $toDt]))->get(['id', 'payment_type', 'status']);
         $totalOrders     = $orders->count();
         $ordersByStatus  = $orders->groupBy('status')->map->count();
         $ordersByPayment = $orders->groupBy('payment_type')->map->count();
 
-        // Top 5 products by revenue
-        $topProducts = $orderScoped(Order::query())
-            ->whereBetween('created_at', [$fromDt, $toDt])
-            ->select('product_id', DB::raw('SUM(price) as revenue'), DB::raw('SUM(quantity) as qty'), DB::raw('COUNT(*) as orders'))
+        // Revenue from order_items (price * quantity) joined through orders
+        $orderIds     = $orders->pluck('id');
+        $totalRevenue = OrderItem::whereIn('order_id', $orderIds)
+            ->sum(DB::raw('price * quantity'));
+
+        // Top 5 products by revenue via order_items
+        $topProducts = OrderItem::whereIn('order_id', $orderIds)
+            ->select('product_id', DB::raw('SUM(price * quantity) as revenue'), DB::raw('SUM(quantity) as qty'), DB::raw('COUNT(*) as orders'))
             ->with('product:id,name,model_number,brand_id', 'product.brand:id,name')
             ->groupBy('product_id')
             ->orderByDesc('revenue')
             ->limit(5)
             ->get();
 
-        // Daily sales sparkline
+        // Daily sales sparkline via orders (date) joined with order_items (revenue)
         $dailySales = $orderScoped(Order::query())
-            ->whereBetween('created_at', [$fromDt, $toDt])
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(price) as revenue'), DB::raw('COUNT(*) as orders'))
+            ->whereBetween('orders.created_at', [$fromDt, $toDt])
+            ->select(
+                DB::raw('DATE(orders.created_at) as date'),
+                DB::raw('COUNT(DISTINCT orders.id) as orders'),
+                DB::raw('SUM(oi.price * oi.quantity) as revenue'),
+            )
+            ->join('order_items as oi', 'oi.order_id', '=', 'orders.id')
             ->groupBy('date')
             ->orderBy('date')
             ->get();

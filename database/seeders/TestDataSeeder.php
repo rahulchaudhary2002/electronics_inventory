@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Maintenance;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Outlet;
 use App\Models\Payment;
 use App\Models\Product;
@@ -175,38 +176,47 @@ class TestDataSeeder extends Seeder
                 $stock->decrement('quantity', $qty);
             }
 
+            $createdAt = now()->subDays(rand(0, 60));
+
             $order = Order::create([
                 'origin_outlet_id'      => $origin->id,
                 'destination_outlet_id' => $dest->id,
-                'product_id'            => $product->id,
                 'customer_name'         => $customer,
                 'customer_mobile'       => $mobile,
                 'customer_address'      => fake()->address(),
-                'price'                 => $price,
-                'quantity'              => $qty,
                 'payment_type'          => $payType,
                 'status'                => $status,
-                'created_at'            => now()->subDays(rand(0, 60)),
+                'created_at'            => $createdAt,
             ]);
 
+            OrderItem::create([
+                'order_id'   => $order->id,
+                'product_id' => $product->id,
+                'price'      => $price,
+                'quantity'   => $qty,
+                'created_at' => $createdAt,
+            ]);
+
+            $total = $price * $qty;
+
             if ($payType === 'credit') {
-                $advance = (int) ($price * 0.3);
+                $advance = (int) ($total * 0.3);
                 Payment::create([
                     'order_id'         => $order->id,
                     'advance_amount'   => $advance,
-                    'remaining_amount' => $price - $advance,
+                    'remaining_amount' => $total - $advance,
                     'due_date'         => now()->addDays(30)->toDateString(),
                 ]);
             }
 
             if ($payType === 'installment') {
-                $down   = (int) ($price * 0.2);
+                $down   = (int) ($total * 0.2);
                 $months = 12;
                 Payment::create([
                     'order_id'            => $order->id,
                     'down_payment'        => $down,
                     'installment_months'  => $months,
-                    'monthly_installment' => round(($price - $down) / $months, 2),
+                    'monthly_installment' => round(($total - $down) / $months, 2),
                 ]);
             }
         }

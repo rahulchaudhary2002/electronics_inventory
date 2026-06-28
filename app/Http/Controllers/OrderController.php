@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Outlet;
 use App\Models\Payment;
 use App\Models\Stock;
@@ -16,7 +17,6 @@ class OrderController extends Controller
     {
         $user = $request->user();
 
-        // All stocks for destination selection — superadmin sees all, outlet user sees own
         $stocksQuery = Stock::with([
             'product:id,name,model_number,brand_id',
             'product.brand:id,name',
@@ -37,15 +37,14 @@ class OrderController extends Controller
         $user = $request->user();
 
         $query = Order::with([
-            'product:id,name,model_number,brand_id',
-            'product.brand:id,name',
+            'items.product:id,name,model_number,brand_id',
+            'items.product.brand:id,name',
             'originOutlet:id,name,code',
             'destinationOutlet:id,name,code',
             'payment',
         ]);
 
         if (!$user->is_superadmin) {
-            // Outlet users see orders where they are either origin or destination
             $query->where(function ($q) use ($user) {
                 $q->where('origin_outlet_id', $user->outlet_id)
                   ->orWhere('destination_outlet_id', $user->outlet_id);
@@ -65,69 +64,83 @@ class OrderController extends Controller
         $data = $request->validate([
             'origin_outlet_id'      => 'required|exists:outlets,id',
             'destination_outlet_id' => 'required|exists:outlets,id',
-            'product_id'            => 'required|exists:products,id',
-            'customer_name'         => 'required|string|max:255',
-            'customer_mobile'       => 'required|string|max:20',
+            'customer_name'         => 'nullable|string|max:255',
+            'customer_mobile'       => 'nullable|string|max:20',
             'customer_address'      => 'nullable|string|max:500',
-            'price'                 => 'required|numeric|min:0',
-            'quantity'              => 'required|numeric|min:0.01',
             'payment_type'          => 'required|in:cash,cheque,online,credit,installment',
             'status'                => 'required|in:pending,confirm,dispatched,delivered,canceled',
-            'warranty_card'         => 'nullable|image|max:5120',
             'advance_amount'        => 'nullable|numeric|min:0',
             'due_date'              => 'nullable|date',
             'down_payment'          => 'nullable|numeric|min:0',
             'installment_months'    => 'nullable|integer|min:1|max:60',
+            'items'                 => 'required|array|min:1',
+            'items.*.product_id'    => 'required|exists:products,id',
+            'items.*.price'         => 'required|numeric|min:0',
+            'items.*.quantity'      => 'required|numeric|min:0.01',
         ]);
 
-        // Outlet users can only originate from their own outlet
         if (!$user->is_superadmin && (int) $data['origin_outlet_id'] !== $user->outlet_id) {
             abort(403);
         }
 
         $destOutletId = (int) $data['destination_outlet_id'];
 
-        // Stock check against destination outlet
-        $stock = Stock::where('outlet_id', $destOutletId)
-            ->where('product_id', $data['product_id'])
-            ->first();
+        // Validate stock for every item
+        foreach ($data['items'] as $index => $item) {
+            $stock = Stock::where('outlet_id', $destOutletId)
+                ->where('product_id', $item['product_id'])
+                ->first();
 
-        if (!$stock || $stock->quantity < $data['quantity']) {
-            return back()->withErrors(['quantity' => 'Not enough stock at destination outlet.']);
+            if (!$stock || $stock->quantity < $item['quantity']) {
+                return back()->withErrors([
+                    "items.{$index}.quantity" => 'Not enough stock at destination outlet.',
+                ]);
+            }
         }
 
-        DB::transaction(function () use ($data, $destOutletId, $request, $stock) {
-            $warrantyPath = null;
-            if ($request->hasFile('warranty_card')) {
-                $warrantyPath = $request->file('warranty_card')->store('warranty-cards', 'public');
-            }
-
-            // Deduct from destination outlet stock
-            $stock->decrement('quantity', $data['quantity']);
-
+        DB::transaction(function () use ($data, $destOutletId, $request) {
             $order = Order::create([
                 'origin_outlet_id'      => $data['origin_outlet_id'],
                 'destination_outlet_id' => $destOutletId,
-                'product_id'            => $data['product_id'],
-                'customer_name'         => $data['customer_name'],
-                'customer_mobile'       => $data['customer_mobile'],
+                'customer_name'         => $data['customer_name'] ?? null,
+                'customer_mobile'       => $data['customer_mobile'] ?? null,
                 'customer_address'      => $data['customer_address'] ?? null,
-                'price'                 => $data['price'],
-                'quantity'              => $data['quantity'],
                 'payment_type'          => $data['payment_type'],
                 'status'                => $data['status'],
-                'warranty_card'         => $warrantyPath,
             ]);
 
+            foreach ($data['items'] as $index => $item) {
+                $stock = Stock::where('outlet_id', $destOutletId)
+                    ->where('product_id', $item['product_id'])
+                    ->first();
+
+                $stock->decrement('quantity', $item['quantity']);
+
+                $warrantyPath = null;
+                $file = $request->file("items.{$index}.warranty_card");
+                if ($file) {
+                    $warrantyPath = $file->store('warranty-cards', 'public');
+                }
+
+                OrderItem::create([
+                    'order_id'      => $order->id,
+                    'product_id'    => $item['product_id'],
+                    'price'         => $item['price'],
+                    'quantity'      => $item['quantity'],
+                    'warranty_card' => $warrantyPath,
+                ]);
+            }
+
+            // Payment for credit / installment (based on total cart value)
             if (in_array($data['payment_type'], ['credit', 'installment'])) {
-                $price       = (float) $data['price'];
+                $total       = collect($data['items'])->sum(fn($i) => $i['price'] * $i['quantity']);
                 $advance     = (float) ($data['advance_amount'] ?? 0);
                 $downPayment = (float) ($data['down_payment'] ?? 0);
                 $months      = isset($data['installment_months']) ? (int) $data['installment_months'] : null;
                 $loanAmount  = $data['payment_type'] === 'credit'
-                    ? $price - $advance
-                    : $price - $downPayment;
-                $emi         = ($months && $months > 0) ? round($loanAmount / $months, 2) : null;
+                    ? $total - $advance
+                    : $total - $downPayment;
+                $emi = ($months && $months > 0) ? round($loanAmount / $months, 2) : null;
 
                 Payment::create([
                     'order_id'            => $order->id,
@@ -148,7 +161,6 @@ class OrderController extends Controller
     {
         $user = $request->user();
 
-        // Both origin and destination outlet users can update
         if (!$user->is_superadmin &&
             $order->origin_outlet_id !== $user->outlet_id &&
             $order->destination_outlet_id !== $user->outlet_id) {
